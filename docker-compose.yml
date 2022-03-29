@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  app:
+    container_name: url-shortener
+    build: .
+    restart: always
+    ports:
+      - 8080:8080
+    depends_on:
+      - pg_db
+
+  pg_db:
+    image: postgres:13.1
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      PGDATA: /var/lib/postgresql/data/pgdata

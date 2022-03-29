@@ -1,0 +1,22 @@
+{{define "admin"}}
+{{template "type"}}
+<head>
+    {{template "meta"}}
+    {{template "styles"}}
+    <title>url shortener</title>
+</head>
+<body class="d-flex flex-column h-100">
+{{template "navbar"}}
+<div class="container mt-5">
+{{ if .Err }}
+<div class="alert alert-danger" role="alert">Ссылка недействительна!</div>
+{{ else }}
+<div class="alert alert-primary" role="alert">{{ .Content }}</div>
+{{ end }}
+</div>
+
+{{template "footer"}}
+{{template "scripts"}}
+</body>
+</html>
+{{end}}
