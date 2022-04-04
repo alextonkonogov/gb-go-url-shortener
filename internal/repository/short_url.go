@@ -13,9 +13,9 @@ type shortURL struct {
 	AdminURLCode string `json:"admin_url_code" db:"admin_url_code"`
 }
 
-func (r *Repository) NewShortURL(ctx context.Context, dbpool *pgxpool.Pool, shortURLCode, adminURLCode string) (ID int, err error) {
-	query := `INSERT INTO short_urls (short_url_code, admin_url_code) VALUES ($1, $2) RETURNING ID`
-	err = dbpool.QueryRow(ctx, query, shortURLCode, adminURLCode).Scan(&ID)
+func (r *Repository) NewShortURL(ctx context.Context, dbpool *pgxpool.Pool, shortURLCode, adminURLCode string) (id int, err error) {
+	query := `INSERT INTO short_urls (short_url_code, admin_url_code) VALUES ($1, $2) RETURNING id`
+	err = dbpool.QueryRow(ctx, query, shortURLCode, adminURLCode).Scan(&id)
 	if err != nil {
 		err = fmt.Errorf("failed to query data: %w", err)
 		return
@@ -30,10 +30,6 @@ func (r *Repository) GetShortURLByAdminIDAndCode(ctx context.Context, dbpool *pg
 		FROM short_urls
 		WHERE short_urls.id = $1 AND short_urls.admin_url_code = $2`,
 		adminURLID, adminURLCode)
-	if err != nil {
-		err = fmt.Errorf("failed to query data: %w", err)
-		return
-	}
 
 	err = row.Scan(&shortURL.ID, &shortURL.ShortURLCode)
 	if err != nil {
