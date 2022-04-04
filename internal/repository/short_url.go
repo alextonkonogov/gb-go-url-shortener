@@ -8,7 +8,7 @@ import (
 )
 
 type shortURL struct {
-	Id           int    `json:"id" db:"id"`
+	ID           int    `json:"id" db:"id"`
 	ShortUrlCode string `json:"short_url_code" db:"short_url_code"`
 	AdminUrlCode string `json:"admin_url_code" db:"admin_url_code"`
 }
@@ -35,7 +35,7 @@ func (r *Repository) GetShortUrlByAdminIdAndCode(ctx context.Context, dbpool *pg
 		return
 	}
 
-	err = row.Scan(&shortUrl.Id, &shortUrl.ShortUrlCode)
+	err = row.Scan(&shortUrl.ID, &shortUrl.ShortUrlCode)
 	if err != nil {
 		err = fmt.Errorf("failed to query data: %w", err)
 		return

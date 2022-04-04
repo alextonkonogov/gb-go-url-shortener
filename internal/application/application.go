@@ -31,7 +31,6 @@ func (a app) Routes(r *httprouter.Router) {
 	r.POST("/short-url", a.ShortUrl)
 	r.GET("/s/:id/:code", a.LongToShort)
 	r.GET("/a/:id/:code", a.AdminsPage)
-
 }
 
 func (a app) IndexPage(rw http.ResponseWriter, data interface{}) {
@@ -51,18 +50,20 @@ func (a app) IndexPage(rw http.ResponseWriter, data interface{}) {
 }
 
 func (a app) ShortUrl(rw http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	var (
-		longUrl, shortUrl, adminUrl string
-	)
+	var longUrl, shortUrl, adminUrl string
+
 	longUrl = r.FormValue("longUrl")
 
 	data := struct {
 		Err     bool
-		Content template.HTML
+		Content []struct {
+			Title string
+			Link  string
+		}
 	}{}
 
 	if !regexp.MustCompile(URLregexp).MatchString(longUrl) {
-		data.Err, data.Content = true, "<p>Вы ввели невалидную ссылку!</p>"
+		data.Err = true
 		a.IndexPage(rw, data)
 		return
 	}
@@ -83,21 +84,15 @@ func (a app) ShortUrl(rw http.ResponseWriter, r *http.Request, p httprouter.Para
 
 	shortUrldisplay, adminUrldisplay := fmt.Sprintf("/s/%d/%s", shortUrlId, shortUrl), fmt.Sprintf("/a/%d/%s", shortUrlId, adminUrl)
 
-	data.Content = template.HTML(
-		fmt.Sprintf(`<div>
-								<h6>Ваша ссылка</h6>
-								<a href="%s" target="_blank">%s</a>
-							</div>
-							<div class="mt-3">
-								<h6>Короткая ссылка</h6>
-								<a href="%s" target="_blank">%s</a>
-							</div>
-							<div class="mt-3">
-								<h6>Админская ссылка</h6>
-								<a href="%s" target="_blank">%s</a>
-							</div>`,
-			longUrl, longUrl, shortUrldisplay, shortUrldisplay, adminUrldisplay, adminUrldisplay,
-		))
+	data.Content = []struct {
+		Title string
+		Link  string
+	}{
+		{"Ваша ссылка", longUrl},
+		{"Короткая ссылка", shortUrldisplay},
+		{"Админская ссылка", adminUrldisplay},
+	}
+
 	a.IndexPage(rw, data)
 }
 
@@ -125,22 +120,10 @@ func (a app) LongToShort(rw http.ResponseWriter, r *http.Request, p httprouter.P
 func (a app) AdminsPage(rw http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	adminUrlId := p.ByName("id")
 	adminUrlCode := p.ByName("code")
-
-	shortUrl, err := a.repo.GetShortUrlByAdminIdAndCode(a.ctx, a.dbpool, adminUrlId, adminUrlCode)
-	if err != nil {
-		http.Error(rw, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	count, err := a.repo.GetLongUrlCountByAdminIdAndCode(a.ctx, a.dbpool, adminUrlId, adminUrlCode)
-	if err != nil {
-		http.Error(rw, err.Error(), http.StatusBadRequest)
-		return
-	}
-
 	data := struct {
-		Err     bool
-		Content template.HTML
+		Err   bool
+		Link  string
+		Count int
 	}{}
 
 	admin := filepath.Join("public", "html", "admin.html")
@@ -151,16 +134,25 @@ func (a app) AdminsPage(rw http.ResponseWriter, r *http.Request, p httprouter.Pa
 		return
 	}
 
-	data.Content = template.HTML(
-		fmt.Sprintf(`<div>
-								<h6>Ваша ссылка</h6>
-								<a href="/s/%d/%s" target="_blank">/s/%d/%s</a>
-							</div>
-								<div class="mt-3">
-									<h6>Кол-во переходов:</h6>
-								<p> %d</p>
-							</div>`,
-			shortUrl.Id, shortUrl.ShortUrlCode, shortUrl.Id, shortUrl.ShortUrlCode, count))
+	shortUrl, err := a.repo.GetShortUrlByAdminIdAndCode(a.ctx, a.dbpool, adminUrlId, adminUrlCode)
+	if err != nil {
+		data.Err = true
+		err = tmpl.ExecuteTemplate(rw, "admin", data)
+		if err != nil {
+			http.Error(rw, err.Error(), http.StatusBadRequest)
+			return
+		}
+		return
+	}
+
+	count, err := a.repo.GetLongUrlCountByAdminIdAndCode(a.ctx, a.dbpool, adminUrlId, adminUrlCode)
+	if err != nil {
+		http.Error(rw, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	data.Link = fmt.Sprintf("/s/%d/%s", shortUrl.ID, shortUrl.ShortUrlCode)
+	data.Count = count
 	err = tmpl.ExecuteTemplate(rw, "admin", data)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusBadRequest)

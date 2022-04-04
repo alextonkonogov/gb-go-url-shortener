@@ -17,11 +17,20 @@
         </div>
     </form>
 
-    {{if . }}
-    <div class="alert alert-{{ if .Err }}danger{{ else }}success{{ end }}" role="alert">
-        {{ .Content }}
+{{if . }}
+    {{if .Err}}
+    <div class="alert alert-danger" role="alert">Вы ввели невалидную ссылку!</div>
+    {{ else }}
+    <div class="alert alert-success" role="alert">
+        {{range .Content}}
+        <div class="mt-3">
+            <h6>{{.Title}}</h6>
+            <a href="{{.Link}}" target="_blank">{{.Link}}</a>
+        </div>
+        {{end}}
     </div>
-    {{ end }}
+    {{end}}
+{{ end }}
 
 </div>
 

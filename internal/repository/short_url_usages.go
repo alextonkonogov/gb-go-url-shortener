@@ -8,12 +8,12 @@ import (
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
-type shortURLusages struct {
-	Id         int       `json:"id" db:"id"`
-	Date       time.Time `json:"date" db:"date"`
-	Ip         string    `json:"ip" db:"ip"`
-	ShortURLid int       `json:"short_url_id" db:"short_url_id"`
-}
+//type shortURLusages struct {
+//	ID         int       `json:"id" db:"id"`
+//	Date       time.Time `json:"date" db:"date"`
+//	Ip         string    `json:"ip" db:"ip"`
+//	ShortURLid int       `json:"short_url_id" db:"short_url_id"`
+//}
 
 func (r *Repository) NewShortUrlUsage(ctx context.Context, dbpool *pgxpool.Pool, ip string, shortUrlId string) (id int, err error) {
 	query := `INSERT INTO short_url_usages (date, ip, short_url_id) VALUES ($1, $2, $3) RETURNING id`

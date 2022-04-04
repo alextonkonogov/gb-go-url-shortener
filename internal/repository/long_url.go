@@ -7,7 +7,7 @@ import (
 )
 
 type longURL struct {
-	Id         int    `json:"id" db:"id"`
+	ID         int    `json:"id" db:"id"`
 	LongUrl    string `json:"long_url" db:"long_url"`
 	ShortURLid int    `json:"short_url_id" db:"short_url_id"`
 }
@@ -36,7 +36,7 @@ func (r *Repository) GetLongUrlByShortIdAndCode(ctx context.Context, dbpool *pgx
 		return
 	}
 
-	err = row.Scan(&longUrl.Id, &longUrl.LongUrl)
+	err = row.Scan(&longUrl.ID, &longUrl.LongUrl)
 	if err != nil {
 		err = fmt.Errorf("failed to query data: %w", err)
 		return
