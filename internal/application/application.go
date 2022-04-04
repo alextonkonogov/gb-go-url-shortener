@@ -50,9 +50,9 @@ func (a app) IndexPage(rw http.ResponseWriter, data interface{}) {
 }
 
 func (a app) ShortUrl(rw http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	var longUrl, shortUrl, adminUrl string
+	var longURL, shortURL, adminURL string
 
-	longUrl = r.FormValue("longUrl")
+	longURL = r.FormValue("longURL")
 
 	data := struct {
 		Err     bool
@@ -62,64 +62,64 @@ func (a app) ShortUrl(rw http.ResponseWriter, r *http.Request, p httprouter.Para
 		}
 	}{}
 
-	if !regexp.MustCompile(URLregexp).MatchString(longUrl) {
+	if !regexp.MustCompile(URLregexp).MatchString(longURL) {
 		data.Err = true
 		a.IndexPage(rw, data)
 		return
 	}
 
-	shortUrl, adminUrl = uniuri.New(), uniuri.New()
+	shortURL, adminURL = uniuri.New(), uniuri.New()
 
-	shortUrlId, err := a.repo.NewShortURL(a.ctx, a.dbpool, shortUrl, adminUrl)
+	shortURLID, err := a.repo.NewShortURL(a.ctx, a.dbpool, shortURL, adminURL)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	_, err = a.repo.NewLongURL(a.ctx, a.dbpool, longUrl, shortUrlId)
+	_, err = a.repo.NewLongURL(a.ctx, a.dbpool, longURL, shortURLID)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	shortUrldisplay, adminUrldisplay := fmt.Sprintf("/s/%d/%s", shortUrlId, shortUrl), fmt.Sprintf("/a/%d/%s", shortUrlId, adminUrl)
+	shortURLdisplay, adminURLdisplay := fmt.Sprintf("/s/%d/%s", shortURLID, shortURL), fmt.Sprintf("/a/%d/%s", shortURLID, adminURL)
 
 	data.Content = []struct {
 		Title string
 		Link  string
 	}{
-		{"Ваша ссылка", longUrl},
-		{"Короткая ссылка", shortUrldisplay},
-		{"Админская ссылка", adminUrldisplay},
+		{"Ваша ссылка", longURL},
+		{"Короткая ссылка", shortURLdisplay},
+		{"Админская ссылка", adminURLdisplay},
 	}
 
 	a.IndexPage(rw, data)
 }
 
 func (a app) LongToShort(rw http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	shortUrlId := p.ByName("id")
-	shortUrlCode := p.ByName("code")
+	shortURLID := p.ByName("id")
+	shortURLCode := p.ByName("code")
 	ip := r.Header.Get("X-FORWARDED-FOR")
 
-	longUrl, err := a.repo.GetLongURLByShortIDAndCode(a.ctx, a.dbpool, shortUrlId, shortUrlCode)
+	longURL, err := a.repo.GetLongURLByShortIDAndCode(a.ctx, a.dbpool, shortURLID, shortURLCode)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	_, err = a.repo.NewShortURLUsage(a.ctx, a.dbpool, ip, shortUrlId)
+	_, err = a.repo.NewShortURLUsage(a.ctx, a.dbpool, ip, shortURLID)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	http.Redirect(rw, r, longUrl.LongURL, http.StatusSeeOther)
+	http.Redirect(rw, r, longURL.LongURL, http.StatusSeeOther)
 	return
 }
 
 func (a app) AdminsPage(rw http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	adminUrlId := p.ByName("id")
-	adminUrlCode := p.ByName("code")
+	adminURLID := p.ByName("id")
+	adminURLCode := p.ByName("code")
 	data := struct {
 		Err   bool
 		Link  string
@@ -134,7 +134,7 @@ func (a app) AdminsPage(rw http.ResponseWriter, r *http.Request, p httprouter.Pa
 		return
 	}
 
-	shortUrl, err := a.repo.GetShortURLByAdminIDAndCode(a.ctx, a.dbpool, adminUrlId, adminUrlCode)
+	shortURL, err := a.repo.GetShortURLByAdminIDAndCode(a.ctx, a.dbpool, adminURLID, adminURLCode)
 	if err != nil {
 		data.Err = true
 		err = tmpl.ExecuteTemplate(rw, "admin", data)
@@ -145,13 +145,13 @@ func (a app) AdminsPage(rw http.ResponseWriter, r *http.Request, p httprouter.Pa
 		return
 	}
 
-	count, err := a.repo.GetLongURLCountByAdminIDAndCode(a.ctx, a.dbpool, adminUrlId, adminUrlCode)
+	count, err := a.repo.GetLongURLCountByAdminIDAndCode(a.ctx, a.dbpool, adminURLID, adminURLCode)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	data.Link = fmt.Sprintf("/s/%d/%s", shortUrl.ID, shortUrl.ShortURLCode)
+	data.Link = fmt.Sprintf("/s/%d/%s", shortURL.ID, shortURL.ShortURLCode)
 	data.Count = count
 	err = tmpl.ExecuteTemplate(rw, "admin", data)
 	if err != nil {
