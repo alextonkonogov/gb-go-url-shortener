@@ -28,9 +28,9 @@ func (a app) Routes(r *httprouter.Router) {
 	r.GET("/", func(rw http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		a.IndexPage(rw, nil)
 	})
-	r.POST("/short-url", a.ShortUrl)
-	r.GET("/s/:id/:code", a.LongToShort)
-	r.GET("/a/:id/:code", a.AdminsPage)
+	r.POST("/short", a.ShortURL)
+	r.GET("/s/:ID/:code", a.LongToShort)
+	r.GET("/a/:ID/:code", a.AdminsPage)
 }
 
 func (a app) IndexPage(rw http.ResponseWriter, data interface{}) {
@@ -49,7 +49,7 @@ func (a app) IndexPage(rw http.ResponseWriter, data interface{}) {
 	}
 }
 
-func (a app) ShortUrl(rw http.ResponseWriter, r *http.Request, p httprouter.Params) {
+func (a app) ShortURL(rw http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	var longURL, shortURL, adminURL string
 
 	longURL = r.FormValue("longURL")

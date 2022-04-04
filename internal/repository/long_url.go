@@ -17,14 +17,14 @@ func (r *Repository) NewLongURL(ctx context.Context, dbpool *pgxpool.Pool, longU
 	query := `INSERT INTO long_urls (long_url, short_url_id) VALUES ($1, $2) RETURNING id`
 	err = dbpool.QueryRow(ctx, query, longUrl, shortUrlId).Scan(&id)
 	if err != nil {
-		err = fmt.Errorf("LONG failed to query data: %w", err)
+		err = fmt.Errorf("failed to query data: %w", err)
 		return
 	}
 
 	return
 }
 
-func (r *Repository) GetLongURLByShortIDAndCode(ctx context.Context, dbpool *pgxpool.Pool, shortUrlId, shortUrlCode string) (longUrl longURL, err error) {
+func (r *Repository) GetLongURLByShortIDAndCode(ctx context.Context, dbpool *pgxpool.Pool, shortUrlId, shortUrlCode string) (longURL longURL, err error) {
 	row := dbpool.QueryRow(ctx, `
 		SELECT long_urls.id, long_urls.long_url
 		FROM long_urls 
@@ -37,7 +37,7 @@ func (r *Repository) GetLongURLByShortIDAndCode(ctx context.Context, dbpool *pgx
 		return
 	}
 
-	err = row.Scan(&longUrl.ID, &longUrl.LongURL)
+	err = row.Scan(&longURL.ID, &longURL.LongURL)
 	if err != nil {
 		err = fmt.Errorf("failed to query data: %w", err)
 		return
