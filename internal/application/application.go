@@ -97,7 +97,7 @@ func (a app) ShortURL(rw http.ResponseWriter, r *http.Request, p httprouter.Para
 }
 
 func (a app) LongToShort(rw http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	shortURLID := p.ByName("id")
+	shortURLID := p.ByName("ID")
 	shortURLCode := p.ByName("code")
 	ip := r.Header.Get("X-FORWARDED-FOR")
 
@@ -118,7 +118,7 @@ func (a app) LongToShort(rw http.ResponseWriter, r *http.Request, p httprouter.P
 }
 
 func (a app) AdminsPage(rw http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	adminURLID := p.ByName("id")
+	adminURLID := p.ByName("ID")
 	adminURLCode := p.ByName("code")
 	data := struct {
 		Err   bool
