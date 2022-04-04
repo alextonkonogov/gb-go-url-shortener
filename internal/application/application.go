@@ -70,13 +70,13 @@ func (a app) ShortUrl(rw http.ResponseWriter, r *http.Request, p httprouter.Para
 
 	shortUrl, adminUrl = uniuri.New(), uniuri.New()
 
-	shortUrlId, err := a.repo.NewShortUrl(a.ctx, a.dbpool, shortUrl, adminUrl)
+	shortUrlId, err := a.repo.NewShortURL(a.ctx, a.dbpool, shortUrl, adminUrl)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	_, err = a.repo.NewLongUrl(a.ctx, a.dbpool, longUrl, shortUrlId)
+	_, err = a.repo.NewLongURL(a.ctx, a.dbpool, longUrl, shortUrlId)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusBadRequest)
 		return
@@ -101,19 +101,19 @@ func (a app) LongToShort(rw http.ResponseWriter, r *http.Request, p httprouter.P
 	shortUrlCode := p.ByName("code")
 	ip := r.Header.Get("X-FORWARDED-FOR")
 
-	longUrl, err := a.repo.GetLongUrlByShortIdAndCode(a.ctx, a.dbpool, shortUrlId, shortUrlCode)
+	longUrl, err := a.repo.GetLongURLByShortIDAndCode(a.ctx, a.dbpool, shortUrlId, shortUrlCode)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	_, err = a.repo.NewShortUrlUsage(a.ctx, a.dbpool, ip, shortUrlId)
+	_, err = a.repo.NewShortURLUsage(a.ctx, a.dbpool, ip, shortUrlId)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	http.Redirect(rw, r, longUrl.LongUrl, http.StatusSeeOther)
+	http.Redirect(rw, r, longUrl.LongURL, http.StatusSeeOther)
 	return
 }
 
@@ -134,7 +134,7 @@ func (a app) AdminsPage(rw http.ResponseWriter, r *http.Request, p httprouter.Pa
 		return
 	}
 
-	shortUrl, err := a.repo.GetShortUrlByAdminIdAndCode(a.ctx, a.dbpool, adminUrlId, adminUrlCode)
+	shortUrl, err := a.repo.GetShortURLByAdminIDAndCode(a.ctx, a.dbpool, adminUrlId, adminUrlCode)
 	if err != nil {
 		data.Err = true
 		err = tmpl.ExecuteTemplate(rw, "admin", data)
@@ -145,13 +145,13 @@ func (a app) AdminsPage(rw http.ResponseWriter, r *http.Request, p httprouter.Pa
 		return
 	}
 
-	count, err := a.repo.GetLongUrlCountByAdminIdAndCode(a.ctx, a.dbpool, adminUrlId, adminUrlCode)
+	count, err := a.repo.GetLongURLCountByAdminIDAndCode(a.ctx, a.dbpool, adminUrlId, adminUrlCode)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	data.Link = fmt.Sprintf("/s/%d/%s", shortUrl.ID, shortUrl.ShortUrlCode)
+	data.Link = fmt.Sprintf("/s/%d/%s", shortUrl.ID, shortUrl.ShortURLCode)
 	data.Count = count
 	err = tmpl.ExecuteTemplate(rw, "admin", data)
 	if err != nil {

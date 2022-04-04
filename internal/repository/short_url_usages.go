@@ -8,14 +8,7 @@ import (
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
-//type shortURLusages struct {
-//	ID         int       `json:"id" db:"id"`
-//	Date       time.Time `json:"date" db:"date"`
-//	Ip         string    `json:"ip" db:"ip"`
-//	ShortURLid int       `json:"short_url_id" db:"short_url_id"`
-//}
-
-func (r *Repository) NewShortUrlUsage(ctx context.Context, dbpool *pgxpool.Pool, ip string, shortUrlId string) (id int, err error) {
+func (r *Repository) NewShortURLUsage(ctx context.Context, dbpool *pgxpool.Pool, ip string, shortUrlId string) (id int, err error) {
 	query := `INSERT INTO short_url_usages (date, ip, short_url_id) VALUES ($1, $2, $3) RETURNING id`
 	err = dbpool.QueryRow(ctx, query, time.Now().UTC(), ip, shortUrlId).Scan(&id)
 	if err != nil {
@@ -26,7 +19,7 @@ func (r *Repository) NewShortUrlUsage(ctx context.Context, dbpool *pgxpool.Pool,
 	return
 }
 
-func (r *Repository) GetLongUrlCountByAdminIdAndCode(ctx context.Context, dbpool *pgxpool.Pool, adminUrlId, adminUrlCode string) (count int, err error) {
+func (r *Repository) GetLongURLCountByAdminIDAndCode(ctx context.Context, dbpool *pgxpool.Pool, adminUrlId, adminUrlCode string) (count int, err error) {
 	row := dbpool.QueryRow(ctx, `
 		SELECT count(*)
 		FROM short_url_usages 
