@@ -9,9 +9,10 @@ import (
 	"path/filepath"
 	"regexp"
 
-	"github.com/alextonkonogov/gb-go-url-shortener/internal/repository"
 	"github.com/dchest/uniuri"
 	"github.com/jackc/pgx/v4/pgxpool"
+
+	"github.com/alextonkonogov/gb-go-url-shortener/internal/repository"
 )
 
 const URLregexp = `(?m)https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)`
