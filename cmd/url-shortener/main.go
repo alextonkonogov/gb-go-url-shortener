@@ -6,7 +6,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/julienschmidt/httprouter"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 
 	"github.com/alextonkonogov/gb-go-url-shortener/internal/application"
 	"github.com/alextonkonogov/gb-go-url-shortener/internal/storage"
@@ -27,10 +28,11 @@ func main() {
 	}
 
 	app := application.NewApp(ctx, dbpool)
-	r := httprouter.New()
+	r := chi.NewRouter()
+	r.Use(middleware.RealIP)
 	app.Routes(r)
 
-	if err = http.ListenAndServe("0.0.0.0:8080", r); err != nil {
+	if err = http.ListenAndServe("0.0.0.0:8282", r); err != nil {
 		log.Panic(fmt.Errorf("%w failed to listen and serve", err))
 	}
 }

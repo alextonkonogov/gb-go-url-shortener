@@ -60,7 +60,7 @@ func InitTables(ctx context.Context, dbpool *pgxpool.Pool) (err error) {
 				(
 					id        		bigint primary key generated always as identity,
 					date			timestamp with time zone not null,
-					ip     			varchar(15) not null,
+					ip     			varchar(200) not null,
 					short_url_id 	integer not null,
 					constraint short_url_id_usages_fk foreign key (short_url_id) references short_urls (id)
 				);
