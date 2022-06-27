@@ -24,7 +24,7 @@ type app struct {
 }
 
 func (a app) Routes(r *chi.Mux) {
-	fileServer := http.FileServer(http.Dir("./ui/static/"))
+	fileServer := http.FileServer(http.Dir("public"))
 	r.Handle("/public/*", http.StripPrefix("/public", fileServer))
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {

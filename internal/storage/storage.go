@@ -9,8 +9,8 @@ import (
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
-func InitDBConn(ctx context.Context) (dbpool *pgxpool.Pool, err error) {
-	url := "postgres://postgres:password@pg_db:5432/postgres?sslmode=disable"
+func InitDBConn(ctx context.Context, DB_CONNECTION_STRING string) (dbpool *pgxpool.Pool, err error) {
+	url := DB_CONNECTION_STRING
 	fmt.Println(url)
 
 	cfg, err := pgxpool.ParseConfig(url)

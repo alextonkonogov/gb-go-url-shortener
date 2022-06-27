@@ -9,6 +9,10 @@ services:
       - 8282:8282
     depends_on:
       - pg_db
+    environment:
+      - APP_IP=0.0.0.0
+      - APP_PORT=8282
+      - DB_CONNECTION_STRING=postgres://postgres:password@pg_db:5432/postgres?sslmode=disable
 
   pg_db:
     image: postgres:13.1
