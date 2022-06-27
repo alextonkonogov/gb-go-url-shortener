@@ -13,15 +13,13 @@ import (
 	"github.com/alextonkonogov/gb-go-url-shortener/internal/storage"
 )
 
-var APP_IP = os.Getenv("APP_IP")
-var APP_PORT = os.Getenv("APP_PORT")
-var DB_CONNECTION_STRING = os.Getenv("DB_CONNECTION_STRING")
+var AppIP = os.Getenv("APP_IP")
+var AppPort = os.Getenv("APP_PORT")
+var DbConnectionString = os.Getenv("DB_CONNECTION_STRING")
 
 func main() {
-
 	ctx := context.Background()
-
-	dbpool, err := storage.InitDBConn(ctx, DB_CONNECTION_STRING)
+	dbpool, err := storage.InitDBConn(ctx, DbConnectionString)
 	if err != nil {
 		log.Panic(fmt.Errorf("%w failed to init DB connection", err))
 	}
@@ -37,7 +35,7 @@ func main() {
 	r.Use(middleware.RealIP)
 	app.Routes(r)
 
-	if err = http.ListenAndServe(APP_IP+":"+APP_PORT, r); err != nil {
+	if err = http.ListenAndServe(AppIP+":"+AppPort, r); err != nil {
 		log.Panic(fmt.Errorf("%w failed to listen and serve", err))
 	}
 }
