@@ -9,9 +9,9 @@ import (
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
-func InitDBConn(ctx context.Context, DbConnectionString string) (dbpool *pgxpool.Pool, err error) {
-	fmt.Println(DbConnectionString)
-	cfg, err := pgxpool.ParseConfig(DbConnectionString)
+func InitDBConn(ctx context.Context, DBConnectionString string) (dbpool *pgxpool.Pool, err error) {
+	fmt.Println(DBConnectionString)
+	cfg, err := pgxpool.ParseConfig(DBConnectionString)
 	if err != nil {
 		err = fmt.Errorf("failed to parse pg config: %w", err)
 		return

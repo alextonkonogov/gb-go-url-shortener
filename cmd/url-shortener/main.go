@@ -15,11 +15,11 @@ import (
 
 var AppIP = os.Getenv("APP_IP")
 var AppPort = os.Getenv("APP_PORT")
-var DbConnectionString = os.Getenv("DB_CONNECTION_STRING")
+var DBConnectionString = os.Getenv("DB_CONNECTION_STRING")
 
 func main() {
 	ctx := context.Background()
-	dbpool, err := storage.InitDBConn(ctx, DbConnectionString)
+	dbpool, err := storage.InitDBConn(ctx, DBConnectionString)
 	if err != nil {
 		log.Panic(fmt.Errorf("%w failed to init DB connection", err))
 	}
