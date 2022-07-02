@@ -13,9 +13,9 @@ import (
 	"github.com/alextonkonogov/gb-go-url-shortener/internal/storage"
 )
 
+var DBConnectionString = os.Getenv("DB_CONNECTION_STRING")
 var AppIP = os.Getenv("APP_IP")
 var AppPort = os.Getenv("APP_PORT")
-var DBConnectionString = os.Getenv("DB_CONNECTION_STRING")
 
 func main() {
 	ctx := context.Background()
