@@ -10,4 +10,4 @@ COPY /public ./public
 COPY --from=builder url_shortener/main ./
 RUN chmod +x ./main
 ENTRYPOINT ["./main"]
-EXPOSE 8080
+EXPOSE 8787

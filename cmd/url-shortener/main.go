@@ -35,6 +35,7 @@ func main() {
 	r.Use(middleware.RealIP)
 	app.Routes(r)
 
+	fmt.Println("started on", AppIP+":"+AppPort)
 	if err = http.ListenAndServe(AppIP+":"+AppPort, r); err != nil {
 		log.Panic(fmt.Errorf("%w failed to listen and serve", err))
 	}
