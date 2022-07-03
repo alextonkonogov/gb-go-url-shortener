@@ -1,13 +1,39 @@
-FROM golang:latest AS builder
-ADD .. /url_shortener
-WORKDIR /url_shortener
-RUN go mod download
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build cmd/url-shortener/main.go
+# FROM archlinux
 
-FROM alpine:latest
-RUN apk --no-cache add ca-certificates
-COPY /public ./public
-COPY --from=builder url_shortener/main ./
-RUN chmod +x ./main
-ENTRYPOINT ["./main"]
-EXPOSE 8787
+# WORKDIR /app
+
+# COPY ./main ./
+
+# CMD ["./main"]
+
+
+# 1
+FROM golang:latest AS build
+
+WORKDIR /app
+
+COPY go.mod .
+COPY go.sum .
+RUN go mod download
+
+COPY . .
+
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -tags netgo -ldflags '-w -extldflags "-static"' -o ./main ./reguser/cmd/reguser
+
+# 2
+
+FROM scratch
+
+WORKDIR /app
+
+COPY --from=build /app/main /app/main
+COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=build /usr/share/zoneinfo /usr/share/zoneinfo
+ENV TZ=Europe/Moscow
+
+EXPOSE 8000
+
+ENV REGUSER_STORE=mem
+
+CMD ["./main"]
+

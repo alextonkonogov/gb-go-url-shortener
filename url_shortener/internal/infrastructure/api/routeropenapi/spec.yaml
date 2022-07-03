@@ -1,0 +1,46 @@
+openapi: "3.0.0"
+
+info:
+ title: Simple service API
+ description: REST API
+ version: "1.0.0"
+
+servers:
+ - url: /
+
+paths:
+  /create:
+    post:
+      summary: Create URL
+      description: Create URL
+      requestBody:
+        description: json body
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiURL'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiURL'
+        400:
+          description: bad request
+        500:
+          description: internal server error
+
+components:
+  schemas:
+    ApiURL:
+#      required:
+#        - code
+      properties:
+        id:
+          type: integer
+        long:
+          type: string
+        short:
+          type: string

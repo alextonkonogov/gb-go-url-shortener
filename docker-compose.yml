@@ -1,26 +1,46 @@
-version: '3.8'
+version: "3.7"
 
 services:
-  app:
-    container_name: url_shortener
-    build: .
-    restart: always
-    ports:
-      - 8787:8787
-    depends_on:
-      - pg_db
-    environment:
-      - APP_IP=0.0.0.0
-      - APP_PORT=8787
-      - DB_CONNECTION_STRING=postgres://postgres:password@pg_db:5432/postgres?sslmode=disable
 
-  pg_db:
-    image: postgres:13.1
+  registry:
+    image: registry:2
+    container_name: registry
+    ports:
+      - 5000:5000
+    restart: always
+    networks:
+      - regusernet
+
+  postgres:
+    image: postgres:12
+    container_name: postgres
     restart: always
     ports:
       - 5432:5432
+    volumes:
+      - ./sql:/docker-entrypoint-initdb.d
+      # - /opt/databases/reguser_postgres_ls8:/var/lib/postgresql/data
     environment:
-      POSTGRES_DB: postgres
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      PGDATA: /var/lib/postgresql/data/pgdata
+      POSTGRES_PASSWORD: 1110
+      POSTGRES_DB: test
+    networks:
+      - regusernet
+
+  reguser:
+    image: 127.0.0.1:5000/reguser:latest
+    container_name: reguser
+    build: .
+    restart: always
+    ports:
+      - 8000:8000
+    environment:
+      PG_DSN: "postgres://postgres:1110@postgres/test?sslmode=disable"
+      # REGUSER_STORE: pg
+    depends_on:
+      - registry
+      - postgres
+    networks:
+      - regusernet
+
+networks:
+  regusernet:
