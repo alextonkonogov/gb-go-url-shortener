@@ -2,7 +2,6 @@ package routeropenapi
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/alextonkonogov/gb-go-url-shortener/url_shortener/internal/infrastructure/api/handler"
 	"html/template"
 	"log"
@@ -90,11 +89,10 @@ func (rt *RouterOpenAPI) GetSShort(w http.ResponseWriter, r *http.Request, short
 	ru.Short = short
 
 	u, err := rt.hs.ReadURL(r.Context(), handler.URL(ru))
-	fmt.Println(u)
 	if err != nil {
-		render.Render(w, r, ErrRender(err))
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	render.Render(w, r, URL(u))
+	http.Redirect(w, r, u.Long, http.StatusSeeOther)
 }

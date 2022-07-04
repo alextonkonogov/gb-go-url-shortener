@@ -59,12 +59,10 @@ paths:
           schema:
             type: string
       responses:
-        200:
-          description: OK
+        303:
+          description: OK - redirect
           content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiURL'
+            text/html:
         400:
           description: bad request
         500:

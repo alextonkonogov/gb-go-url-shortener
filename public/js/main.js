@@ -14,15 +14,15 @@ function create() {
             <div class="alert alert-success" role="alert">
                 <div class="mt-3">
                     <h6>Ваша ссылка</h6>
-                    <a href="${data.long}" target="_blank">${data.long}</a>
+                    <a  href="${data.long}" target="_blank">${data.long}</a>
                 </div>
                 <div class="mt-3">
                     <h6>Короткая ссылка (ей можно поделиться)</h6>
-                    <button type="button" class="btn btn-link" onclick="read(\`/s/${data.short}\`)">/s/${data.short}</button>
+                    <a href="s/${data.short}" target="_blank">${window.location.href}s/${data.short}</a>
                 </div>
                 <div class="mt-3">
                     <h6>Админская ссылка (оставьте у себя)</h6>
-                    <a href="/a/${data.admin}" target="_blank">/a/${data.admin}</a>
+                    <a href="a/${data.admin}" target="_blank">${window.location.href}a/${data.admin}</a>
                 </div>
             </div>`
         }
@@ -36,7 +36,7 @@ function create() {
 
 function read(url) {
     var xhr = new XMLHttpRequest();
-    xhr.open("GET", `${url}`, true);
+    xhr.open("GET", url, true);
     xhr.onreadystatechange = function () {
         if (xhr.readyState == 4 && xhr.status == 200) {
             var data = JSON.parse(xhr.response);
@@ -49,5 +49,10 @@ function read(url) {
         console.log(err)
     }
 }
+
+function open(url) {
+    window.open(url, '_blank').focus();
+}
+
 
 
