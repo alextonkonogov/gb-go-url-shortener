@@ -1,0 +1,18 @@
+{{define "admin"}}
+{{template "type"}}
+<head>
+    {{template "meta"}}
+    {{template "styles"}}
+    <title>url shortener</title>
+</head>
+<body class="d-flex flex-column h-100">
+{{template "navbar"}}
+<div class="container mt-5">
+    {{template "response"}}
+</div>
+{{template "footer"}}
+{{template "scripts"}}
+<script src="/public/js/admin.js"></script>
+</body>
+</html>
+{{end}}

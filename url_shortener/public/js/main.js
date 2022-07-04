@@ -34,25 +34,6 @@ function create() {
     }
 }
 
-function read(url) {
-    var xhr = new XMLHttpRequest();
-    xhr.open("GET", url, true);
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState == 4 && xhr.status == 200) {
-            var data = JSON.parse(xhr.response);
-            document.location.href = data.long;
-        }
-    };
-    try {
-        xhr.send();
-    } catch (err) {
-        console.log(err)
-    }
-}
-
-function open(url) {
-    window.open(url, '_blank').focus();
-}
 
 
 

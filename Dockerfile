@@ -29,7 +29,7 @@ WORKDIR /app
 COPY --from=build /app/main /app/main
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=build /usr/share/zoneinfo /usr/share/zoneinfo
-COPY /public ./public
+COPY /url_shortener/public ./public
 ENV TZ=Europe/Moscow
 
 EXPOSE 8000

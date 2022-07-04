@@ -1,4 +1,4 @@
-package URLrepo
+package repoURL
 
 import (
 	"context"
@@ -14,17 +14,17 @@ type URLStore interface {
 	Read(ctx context.Context, u url.URL) (*string, error)
 }
 
-type URLs struct {
+type URL struct {
 	URLStore URLStore
 }
 
-func NewURLs(ustore URLStore) *URLs {
-	return &URLs{
+func NewURL(ustore URLStore) *URL {
+	return &URL{
 		URLStore: ustore,
 	}
 }
 
-func (us *URLs) Create(ctx context.Context, u url.URL) (*url.URL, error) {
+func (us *URL) Create(ctx context.Context, u url.URL) (*url.URL, error) {
 	u.Created = time.Now().Format("2006-01-02T15:04:05.000Z")
 	u.Short = uniuri.New()
 	u.Admin = uniuri.New()
@@ -36,7 +36,7 @@ func (us *URLs) Create(ctx context.Context, u url.URL) (*url.URL, error) {
 	return &u, nil
 }
 
-func (us *URLs) Read(ctx context.Context, u url.URL) (*url.URL, error) {
+func (us *URL) Read(ctx context.Context, u url.URL) (*url.URL, error) {
 	long, err := us.URLStore.Read(ctx, u)
 	if err != nil {
 		return nil, fmt.Errorf("create URL error: %w", err)

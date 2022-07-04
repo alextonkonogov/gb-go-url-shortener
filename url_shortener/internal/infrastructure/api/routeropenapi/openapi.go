@@ -18,6 +18,16 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+// ApiStatistics defines model for ApiStatistics.
+type ApiStatistics struct {
+	Admin   *string `json:"admin,omitempty"`
+	Count   *int    `json:"count,omitempty"`
+	Ip      *string `json:"ip,omitempty"`
+	Long    *string `json:"long,omitempty"`
+	Short   *string `json:"short,omitempty"`
+	Visited *string `json:"visited,omitempty"`
+}
+
 // ApiURL defines model for ApiURL.
 type ApiURL struct {
 	Admin   *string `json:"admin,omitempty"`
@@ -27,8 +37,14 @@ type ApiURL struct {
 	Short   *string `json:"short,omitempty"`
 }
 
+// PostAJSONBody defines parameters for PostA.
+type PostAJSONBody = ApiStatistics
+
 // PostCreateJSONBody defines parameters for PostCreate.
 type PostCreateJSONBody = ApiURL
+
+// PostAJSONRequestBody defines body for PostA for application/json ContentType.
+type PostAJSONRequestBody = PostAJSONBody
 
 // PostCreateJSONRequestBody defines body for PostCreate for application/json ContentType.
 type PostCreateJSONRequestBody = PostCreateJSONBody
@@ -38,6 +54,12 @@ type ServerInterface interface {
 	// Index page with form
 	// (GET /)
 	Get(w http.ResponseWriter, r *http.Request)
+	// Shows URL statistics
+	// (POST /a)
+	PostA(w http.ResponseWriter, r *http.Request)
+	// Admin page
+	// (GET /a/{admin})
+	GetAAdmin(w http.ResponseWriter, r *http.Request, admin string)
 	// Create URL
 	// (POST /create)
 	PostCreate(w http.ResponseWriter, r *http.Request)
@@ -61,6 +83,47 @@ func (siw *ServerInterfaceWrapper) Get(w http.ResponseWriter, r *http.Request) {
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.Get(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// PostA operation middleware
+func (siw *ServerInterfaceWrapper) PostA(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PostA(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// GetAAdmin operation middleware
+func (siw *ServerInterfaceWrapper) GetAAdmin(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "admin" -------------
+	var admin string
+
+	err = runtime.BindStyledParameter("simple", false, "admin", chi.URLParam(r, "admin"), &admin)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "admin", Err: err})
+		return
+	}
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetAAdmin(w, r, admin)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -228,6 +291,12 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Get(options.BaseURL+"/", wrapper.Get)
 	})
 	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/a", wrapper.PostA)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/a/{admin}", wrapper.GetAAdmin)
+	})
+	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/create", wrapper.PostCreate)
 	})
 	r.Group(func(r chi.Router) {
@@ -240,16 +309,17 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/7RUQW/UPBD9K9Z83zE0gYVLbgWhUrWo1W45IOjBTWazRoltxpOyq1X+Oxo7aLdpCkKo",
-	"e9jY8zwe+7033kPlOu8sWg5Q7iFUG+x0HJ5682l5KSNPziOxwRjXdWesDHjnEUoITMY2MGRQEWrGehYz",
-	"x2FjGRskibfONrMJYeOIZxD5ZWDs2glYY6jIeDbOQgnL96sbdXp9Dhmw4VbSVqbzLaqAdG8qHMF7pJAy",
-	"Xp4UJ4WUcx6t9gZKWMRQBl7zJl44l78G+XG9c1vjVnndoPpheKPWjjqIe5GWJec1lHCGDBkQBu9sSBS+",
-	"Kgr5VM4y2nRJ3HK+4a6F0vZtO2STSlcXkAFutVwmTBLga18Ui0omcYRpfufqXZp/dj2pDzcfL5VkJTQ/",
-	"wGPgkA/C8Jt0xofHEOHI6jbyiaSQyFFcHvqu07R7ihRZkid/REe5MEPnu4grcd2UxGsXOMGRy+89Bn7r",
-	"6t2ERu19a6qYln8Lzh4sLaP/CddQwn/5wfP5aPh8dHs018NTyT5K2BorGxKLM/U4/FHW5zjP1YX49fWc",
-	"PHe6ViM58C8SHgkRhQv5Prbj8GQnLLE2hBUrdkpaWjkyjZEyc2qeIa9Wsb+lzUh3yEgByi/TbWNVVbla",
-	"ZJdXJ3YlZGB1h7/wR7pkRxxPX4/biWaLYvHXraheKBrv++xS/J7YaI+UnejrSR6EHIbb4WcAAAD//wcO",
-	"dYnbBQAA",
+	"H4sIAAAAAAAC/9RVQW/TTBD9K6v5vqOpDYGLbwGhUrWoVdIeEPSwtafJInt3mR23jSL/dzRrS0mMAwpV",
+	"EFySXT/P7Ox788ZrKFztnUXLAfI1hGKJtY7LqTdz1mwCmyI+8OQ8EhuMO13WxsqCVx4hh8Bk7ALaBArX",
+	"WN5CjGVcIAlk/GhE5exiFAhLRzyKPJhgGMsRrG0Tqf1mdnFQ0YR6PF8Cphy/zcFlt7E4Y++dgCWGgoxn",
+	"4yzkMHs/v1bTqzNIgA1XEjY3ta9QBaQHU2APPiCFLuLlSXaSyXHOo9XeQA6T+CgBr3kZL5zKzwL5x/PO",
+	"bIlPyusFqkfDS3XvqIaYi7S8clZCDqfIkABh8M6GjsJXWSZ/hbOMvcz4xOmS6wpy21RVmwxOujyHBPBJ",
+	"y2XCIAC+NFk2KWQTV9jt71y56vafXEPqw/XHCyVRHZpu4P7BJh6E4TddjbtliHBkdRX5RFJI5Ci+Hpq6",
+	"1rTaR4q8kurYTC6MMDlfusegbmYXKmz8MmTyygWeRi6/NRj4rStXAxq195UpYkT6NTi7saOs/ie8hxz+",
+	"Szd+TXuzprtOjT22W6GkU0JaX4Ah6XSmBttfqnvEsi7PpXtfj4l1p0vVUwXPEXRUm07QdB2nQbvXIVOB",
+	"YzOM+WIa4eg10jUyUoD88zBHnASqcKXkkNETrQkJWF2LxXWfZFeVZIvh4Qi5/Qf9eFSJt2SKwnaTfL9d",
+	"30VcemLUpB18PKfKuX+TRffU8we8uSVEFC6k62iX/Y6cYWkIC1bslHx8lSOzMHLMmJqnyPN5/BI/06Sh",
+	"T/L7Jp1kk4NNql4o6u97dCl+Tmxsjy66o68hGRUptLft9wAAAP//DlohJUEKAAA=",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

@@ -68,6 +68,52 @@ paths:
         500:
           description: internal server error
 
+  /a/{admin}:
+    get:
+      summary: Admin page
+      description: Admin page
+      parameters:
+        - name: admin
+          description: short code
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+          content:
+            text/html:
+          examples:
+            text/html:
+              <html><body>Your HTML text</body></html>
+        400:
+          description: bad request
+        500:
+          description: internal server error
+  /a:
+    post:
+      summary: Shows URL statistics
+      description: Shows URL statistics
+      requestBody:
+        description: json body
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiStatistics'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiStatistics'
+        400:
+          description: bad request
+        500:
+          description: internal server error
+
 components:
   schemas:
     ApiURL:
@@ -82,3 +128,17 @@ components:
           type: string
         admin:
           type: string
+    ApiStatistics:
+      properties:
+        long:
+          type: string
+        short:
+          type: string
+        admin:
+          type: string
+        visited:
+          type: string
+        ip:
+          type: string
+        count:
+          type: integer
