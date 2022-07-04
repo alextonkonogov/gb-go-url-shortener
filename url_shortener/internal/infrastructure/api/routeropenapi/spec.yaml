@@ -9,6 +9,21 @@ servers:
  - url: /
 
 paths:
+  /:
+    get:
+      summary: Index page with form
+      description: Index page with form
+      responses:
+        200:
+          description: OK
+          content:
+            text/html:
+          examples:
+            text/html:
+              <html><body>Your HTML text</body></html>
+        500:
+          description: internal server error
+
   /create:
     post:
       summary: Create URL
@@ -32,15 +47,40 @@ paths:
         500:
           description: internal server error
 
+  /s/{short}:
+    get:
+      summary: Redirect to long original URL
+      description: Redirect to long original URL
+      parameters:
+        - name: short
+          description: short code
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiURL'
+        400:
+          description: bad request
+        500:
+          description: internal server error
+
 components:
   schemas:
     ApiURL:
-#      required:
-#        - code
       properties:
         id:
           type: integer
+        created:
+          type: string
         long:
           type: string
         short:
+          type: string
+        admin:
           type: string

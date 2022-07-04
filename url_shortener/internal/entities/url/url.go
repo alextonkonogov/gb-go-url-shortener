@@ -1,7 +1,9 @@
 package url
 
 type URL struct {
-	ID    int
-	Long  string
-	Short string
+	ID      int64  `json:"id"`
+	Created string `json:"created"`
+	Long    string `json:"long"`
+	Short   string `json:"short"`
+	Admin   string `json:"admin"`
 }

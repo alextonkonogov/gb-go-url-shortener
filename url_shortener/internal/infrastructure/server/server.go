@@ -2,14 +2,14 @@ package server
 
 import (
 	"context"
-	"github.com/alextonkonogov/gb-go-url-shortener/url_shortener/internal/usecases/app/repos/userrepo"
+	"github.com/alextonkonogov/gb-go-url-shortener/url_shortener/internal/usecases/app/repos/URLrepo"
 	"net/http"
 	"time"
 )
 
 type Server struct {
 	srv http.Server
-	us  *userrepo.URLs
+	us  *URLrepo.URLs
 }
 
 func NewServer(addr string, h http.Handler) *Server {
@@ -31,7 +31,7 @@ func (s *Server) Stop() {
 	cancel()
 }
 
-func (s *Server) Start(us *userrepo.URLs) {
+func (s *Server) Start(us *URLrepo.URLs) {
 	s.us = us
 	// TODO: migrations
 	go s.srv.ListenAndServe()
