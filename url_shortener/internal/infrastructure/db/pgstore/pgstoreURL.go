@@ -50,11 +50,11 @@ func NewURL(dsn string) (*URL, error) {
 	return us, nil
 }
 
-func (us *URL) Close() {
-	us.db.Close()
+func (ur *URL) Close() {
+	ur.db.Close()
 }
 
-func (us *URL) Create(ctx context.Context, u url.URL) (*int64, error) {
+func (ur *URL) Create(ctx context.Context, u url.URL) (*int64, error) {
 	dbu := &DBPgURL{
 		ID:        u.ID,
 		CreatedAt: u.Created,
@@ -63,14 +63,13 @@ func (us *URL) Create(ctx context.Context, u url.URL) (*int64, error) {
 		Admin:     u.Admin,
 	}
 
-	err := us.db.QueryRowContext(ctx, `INSERT INTO urls (created_at, long, short, admin) 
+	err := ur.db.QueryRowContext(ctx, `INSERT INTO urls (created_at, long, short, admin) 
 		values ($1, $2, $3, $4) RETURNING id`,
 		dbu.CreatedAt,
 		dbu.Long,
 		dbu.Short,
 		dbu.Admin,
 	).Scan(&dbu.ID)
-
 	if err != nil {
 		return nil, err
 	}
@@ -78,15 +77,17 @@ func (us *URL) Create(ctx context.Context, u url.URL) (*int64, error) {
 	return &dbu.ID, nil
 }
 
-func (us *URL) Read(ctx context.Context, u url.URL) (*string, error) {
+func (us *URL) Read(ctx context.Context, u url.URL) (*url.URL, error) {
 	dbu := &DBPgURL{
 		Short: u.Short,
 	}
 
-	err := us.db.QueryRowContext(ctx, `SELECT long FROM urls WHERE short = $1`, dbu.Short).Scan(&dbu.Long)
+	err := us.db.QueryRowContext(ctx, `SELECT id, long FROM urls WHERE short = $1`, dbu.Short).Scan(&dbu.ID, &dbu.Long)
 	if err != nil {
 		return nil, err
 	}
+	u.ID = dbu.ID
+	u.Long = dbu.Long
 
-	return &dbu.Long, nil
+	return &u, nil
 }

@@ -134,9 +134,7 @@ components:
           type: string
         short:
           type: string
-        admin:
-          type: string
-        visited:
+        viewed:
           type: string
         ip:
           type: string

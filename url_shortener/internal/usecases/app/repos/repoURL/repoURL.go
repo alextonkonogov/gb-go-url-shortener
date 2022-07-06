@@ -11,7 +11,7 @@ import (
 // нужен только тут
 type URLStore interface {
 	Create(ctx context.Context, u url.URL) (*int64, error)
-	Read(ctx context.Context, u url.URL) (*string, error)
+	Read(ctx context.Context, u url.URL) (*url.URL, error)
 }
 
 type URL struct {
@@ -37,10 +37,11 @@ func (us *URL) Create(ctx context.Context, u url.URL) (*url.URL, error) {
 }
 
 func (us *URL) Read(ctx context.Context, u url.URL) (*url.URL, error) {
-	long, err := us.URLStore.Read(ctx, u)
+	nu, err := us.URLStore.Read(ctx, u)
 	if err != nil {
 		return nil, fmt.Errorf("create URL error: %w", err)
 	}
-	u.Long = *long
+	u.ID = nu.ID
+	u.Long = nu.Long
 	return &u, nil
 }

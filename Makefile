@@ -1,4 +1,4 @@
-APP=url_shortener
+APP=main
 REMOTEHOST=c8555@h4.netangels.ru
 DIR=:/gbt.alextonkonogov.ru
 

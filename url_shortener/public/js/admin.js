@@ -27,15 +27,15 @@ function Statistics() {
                 </div>
                 <div class="mt-3">
                     <h6>Последний переход по ссылке:</h6>
-                    <p></p>
+                    <p>${data.viewed}</p>
                 </div>
                 <div class="mt-3">
                     <h6>IP:</h6>
-                    <p></p>
+                    <p>${data.ip}</p>
                 </div>
                 <div class="mt-3">
                     <h6>Кол-во переходов:</h6>
-                    <p></p>
+                    <p>${data.count}</p>
                 </div>
             </div>`
         }

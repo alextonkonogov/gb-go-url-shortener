@@ -14,8 +14,11 @@ import (
 	"os/signal"
 )
 
+var appIP = os.Getenv("APP_IP")
+var appPort = os.Getenv("APP_PORT")
+var pgStr = os.Getenv("DB_CONNECTION_STRING")
+
 func main() {
-	var pgStr = os.Getenv("PG_DSN")
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 	ust, err := pgstore.NewURL(pgStr)
 	if err != nil {
@@ -30,7 +33,7 @@ func main() {
 	st := repoStatistics.NewStatistics(sst)
 	hs := handler.NewHandlers(ur, st)
 	h := routeropenapi.NewRouterOpenAPI(hs)
-	srv := server.NewServer(":8000", h)
+	srv := server.NewServer(appIP+":"+appPort, h)
 
 	srv.Start(ur, st)
 	log.Print("Started")

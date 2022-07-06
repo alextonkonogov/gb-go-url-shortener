@@ -41,11 +41,11 @@ func (rt *RouterOpenAPI) PostA(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	u, err := rt.hs.ReadStatistics(r.Context(), handler.Statistics(s))
+	st, err := rt.hs.ReadStatistics(r.Context(), handler.Statistics(s))
 	if err != nil {
 		render.Render(w, r, ErrRender(err))
 		return
 	}
 
-	render.Render(w, r, Statistics(u))
+	render.Render(w, r, Statistics(st))
 }

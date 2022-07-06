@@ -9,7 +9,7 @@ services:
       - 5000:5000
     restart: always
     networks:
-      - regusernet
+      - url_shortenernet
 
   postgres:
     image: postgres:12
@@ -19,28 +19,28 @@ services:
       - 5432:5432
     volumes:
       - ./sql:/docker-entrypoint-initdb.d
-      # - /opt/databases/reguser_postgres_ls8:/var/lib/postgresql/data
     environment:
       POSTGRES_PASSWORD: 1110
       POSTGRES_DB: test
     networks:
-      - regusernet
+      - url_shortenernet
 
-  reguser:
-    image: 127.0.0.1:5000/reguser:latest
-    container_name: reguser
+  url_shortener:
+    image: 127.0.0.1:5000/url_shortener:latest
+    container_name: url_shortener
     build: .
     restart: always
     ports:
       - 8000:8000
     environment:
-      PG_DSN: "postgres://postgres:1110@postgres/test?sslmode=disable"
-      # REGUSER_STORE: pg
+      DB_CONNECTION_STRING: "postgres://postgres:1110@postgres/test?sslmode=disable"
+      APP_IP:
+      APP_PORT: 8000
     depends_on:
       - registry
       - postgres
     networks:
-      - regusernet
+      - url_shortenernet
 
 networks:
-  regusernet:
+  url_shortenernet:

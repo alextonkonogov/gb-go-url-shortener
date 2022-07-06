@@ -1,6 +1,7 @@
 package routeropenapi
 
 import (
+	"github.com/alextonkonogov/gb-go-url-shortener/url_shortener/internal/entities/statistics"
 	"github.com/alextonkonogov/gb-go-url-shortener/url_shortener/internal/infrastructure/api/handler"
 	"github.com/go-chi/render"
 	"html/template"
@@ -47,18 +48,32 @@ func (rt *RouterOpenAPI) PostCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	err = rt.hs.CreateStatistics(r.Context(), u.ID)
+	if err != nil {
+		render.Render(w, r, ErrRender(err))
+		return
+	}
+
 	render.Render(w, r, URL(u))
 }
 
 func (rt *RouterOpenAPI) GetSShort(w http.ResponseWriter, r *http.Request, short string) {
-	ru := URL{}
-	ru.Short = short
+	u := URL{}
+	u.Short = short
 
-	u, err := rt.hs.ReadURL(r.Context(), handler.URL(ru))
+	nu, err := rt.hs.ReadURL(r.Context(), handler.URL(u))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	http.Redirect(w, r, u.Long, http.StatusSeeOther)
+	st := statistics.Statistics{}
+	st.IP = r.RemoteAddr
+	_, err = rt.hs.UpdateStatistics(r.Context(), handler.Statistics(st), nu.ID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, nu.Long, http.StatusSeeOther)
 }
