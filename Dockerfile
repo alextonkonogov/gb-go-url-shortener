@@ -1,12 +1,3 @@
-# FROM archlinux
-
-# WORKDIR /app
-
-# COPY ./main ./
-
-# CMD ["./main"]
-
-
 # 1
 FROM golang:latest AS build
 
