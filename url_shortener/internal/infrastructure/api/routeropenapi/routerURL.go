@@ -35,7 +35,23 @@ func (rt *RouterOpenAPI) Get(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (rt *RouterOpenAPI) PostCreate(w http.ResponseWriter, r *http.Request) {
+func (rt *RouterOpenAPI) GetErr(w http.ResponseWriter, r *http.Request) {
+	page := filepath.Join("public", "html", "err.html")
+	common := filepath.Join("public", "html", "common.html")
+	tmpl, err := template.ParseFiles(page, common)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = tmpl.ExecuteTemplate(w, "err", nil)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+}
+
+func (rt *RouterOpenAPI) PostSCreate(w http.ResponseWriter, r *http.Request) {
 	ru := URL{}
 	if err := render.Bind(r, &ru); err != nil {
 		render.Render(w, r, ErrInvalidRequest(err))
@@ -63,7 +79,7 @@ func (rt *RouterOpenAPI) GetSShort(w http.ResponseWriter, r *http.Request, short
 
 	nu, err := rt.hs.ReadURL(r.Context(), handler.URL(u))
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Redirect(w, r, "/err", http.StatusSeeOther)
 		return
 	}
 

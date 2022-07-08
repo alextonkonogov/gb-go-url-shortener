@@ -24,7 +24,22 @@ paths:
         500:
           description: internal server error
 
-  /create:
+  /err:
+    get:
+      summary: Error page
+      description: Error page
+      responses:
+        200:
+          description: OK
+          content:
+            text/html:
+          examples:
+            text/html:
+              <html><body>Your HTML text</body></html>
+        500:
+          description: internal server error
+
+  /s/create:
     post:
       summary: Create URL
       description: Create URL

@@ -39,14 +39,14 @@ type ApiURL struct {
 // PostAJSONBody defines parameters for PostA.
 type PostAJSONBody = ApiStatistics
 
-// PostCreateJSONBody defines parameters for PostCreate.
-type PostCreateJSONBody = ApiURL
+// PostSCreateJSONBody defines parameters for PostSCreate.
+type PostSCreateJSONBody = ApiURL
 
 // PostAJSONRequestBody defines body for PostA for application/json ContentType.
 type PostAJSONRequestBody = PostAJSONBody
 
-// PostCreateJSONRequestBody defines body for PostCreate for application/json ContentType.
-type PostCreateJSONRequestBody = PostCreateJSONBody
+// PostSCreateJSONRequestBody defines body for PostSCreate for application/json ContentType.
+type PostSCreateJSONRequestBody = PostSCreateJSONBody
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
@@ -59,9 +59,12 @@ type ServerInterface interface {
 	// Admin page
 	// (GET /a/{admin})
 	GetAAdmin(w http.ResponseWriter, r *http.Request, admin string)
+	// Error page
+	// (GET /err)
+	GetErr(w http.ResponseWriter, r *http.Request)
 	// Create URL
-	// (POST /create)
-	PostCreate(w http.ResponseWriter, r *http.Request)
+	// (POST /s/create)
+	PostSCreate(w http.ResponseWriter, r *http.Request)
 	// Redirect to long original URL
 	// (GET /s/{short})
 	GetSShort(w http.ResponseWriter, r *http.Request, short string)
@@ -132,12 +135,27 @@ func (siw *ServerInterfaceWrapper) GetAAdmin(w http.ResponseWriter, r *http.Requ
 	handler(w, r.WithContext(ctx))
 }
 
-// PostCreate operation middleware
-func (siw *ServerInterfaceWrapper) PostCreate(w http.ResponseWriter, r *http.Request) {
+// GetErr operation middleware
+func (siw *ServerInterfaceWrapper) GetErr(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.PostCreate(w, r)
+		siw.Handler.GetErr(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// PostSCreate operation middleware
+func (siw *ServerInterfaceWrapper) PostSCreate(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PostSCreate(w, r)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -296,7 +314,10 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Get(options.BaseURL+"/a/{admin}", wrapper.GetAAdmin)
 	})
 	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/create", wrapper.PostCreate)
+		r.Get(options.BaseURL+"/err", wrapper.GetErr)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/s/create", wrapper.PostSCreate)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/s/{short}", wrapper.GetSShort)
@@ -308,17 +329,18 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/9RVUW/TMBD+K9bBY1gChZe8FYTGtKFN7faAYA9ecmuNEtucL9uqKv8dnROpbZaCxlQE",
-	"L5XtL3c+f9991zUUrvbOouUA+RpCscRax+XUmzlrNoFNEQ88OY/EBuOucI1lWfDKI+RgLOMCCdoEjN86",
-	"D0zGLuS4cnYxCoSlIx5F7gzeYzkCtW0iBV7Nzh5Xpsva2NF0BaHm0XwJmHL8MU+uuo3FGXvrBCwxFGQ8",
-	"G2chh9nH+aWaXpxAAmy4krC5qX2FKiDdmQJ78A4pdBGvj7KjTK5zHq32BnKYxKMEvOZlfHAqPwvkx/ed",
-	"2BIflNcLVPeGl+rWUQ0xF2n55KSEHI6RIQHC4J0NHYVvsqzT2DL2KuMDp0uuK8htU1VtMrjp/BQSwAct",
-	"jwmDAPjWZNmkkE1cYbe/ceWq239xDalPl5/PlER1aLqB+4NNPAjD77oad8sQ4cjqKvKJpJDIUfw8NHWt",
-	"abWPFPkk1bGZXBhhcr5090Fdzc5U2JhiyOSFCzyNXP5oMPB7V64GNGrvK1PEiPR7cHbjOVm9JLyFHF6k",
-	"G1OmvSPTXTvGHtutUNIpIa0vwJB0OlOD7W/VPWBZ56fSvW/HxLrRpeqpgucIOqpNJ2i6jtOg3euQqcCx",
-	"GcZ8MY1w9BrpGhkpQP51mCNOAlW4UnLI6InWhASsrsXiuk+yq0qyxfBwhFz/h348qMRbMkVhu0m+364f",
-	"Ii49MWrSDj6cU+Xef8mie+r5C97cEiIKF9J1tMt+R86wNIQFK3ZK/nyVI7Mwcs2YmsfI83n8J36mSUOf",
-	"5M9NOskmTzapeqWof+/Bpfg1sbE9uuiOvoZkVKTQXrc/AwAA//9AX5/jJgoAAA==",
+	"H4sIAAAAAAAC/+RWTW/bOBD9K8TsHrWRt24vurlFkAZJkcBKDkWbAyNNbBYSyQ5HSQxD/70YSoA/IrVI",
+	"AxctejFIDmc4fI/vWWsoXO2dRcsBsjWEYom1jsOZNzlrNoFNERc8OY/EBuOscI1lGfDKI2RgLOMCCdoE",
+	"jN9aD0zGLmS5cnYxGAhLRzwYuTf4gOVAqG0TafB6fv60M13Wxg6WKwg1D9ZLwJTDl3l2121sztg7J8ES",
+	"Q0HGs3EWMpgf51dqdnkKCbDhStJyU/sKVUC6NwX2wXuk0GX8fzQ5mshxzqPV3kAG07iUgNe8jBdO5WeB",
+	"/PS8U1vio/J6gerB8FLdOaoh1iItW05LyOAEGRIgDN7Z0EH4ajLpOLaMPcv4yOmS6woy21RVm+yddHEG",
+	"CeCjlsuEvQT43Ewm00ImcYTd/NaVq27+0TWk3l99OFeS1UXTTbhf2OSDIPym63G3DSGOrK4inkgKiRzF",
+	"7aGpa02rMVBkS6rjY3JhAMl86R6Cup6fq7ARxT6Sly7wLGL5tcHAb1252oNRe1+ZImakX4KzG83J6F/C",
+	"O8jgn3QjyrRXZLorx/jGdjuUckpA6xswJC+dqcH2h+wesK2LM3m9r4fIutWl6qGClxA6yE1HaLqObtCO",
+	"KmQm4fgYhnQxi+GoNdI1MlKA7NN+jegEqnCl1BDridKEBKyuReK6L7LLSrKF8L6F3PyBejwoxVs0RWKR",
+	"aJTSY8kfpfSY6K9yuy00InIh7f4Fx63uXYyLngYNLu/ih7M5Ofh38reRfn6BsW0x0XO3jl4zbmdzLA1h",
+	"wYqdki8X5cgsjBwzROcJcp7Hz5gXOlzoi/y8w00n02drUP2nqL/vwan4PrDxeXTZHXwNiROk0N603wIA",
+	"AP//rJnP5WMLAAA=",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

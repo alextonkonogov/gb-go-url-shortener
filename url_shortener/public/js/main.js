@@ -5,12 +5,14 @@ function create() {
     let reqDataJSON = JSON.stringify(reqData)
 
     var xhr = new XMLHttpRequest();
-    xhr.open("POST", "/create", true);
+    xhr.open("POST", "/s/create", true);
     xhr.setRequestHeader('Content-Type', 'application/json');
     xhr.onreadystatechange = function () {
+        var data = JSON.parse(xhr.response);
+        let responseDiv =  document.getElementById("response")
+
         if (xhr.readyState == 4 && xhr.status == 200) {
-            var data = JSON.parse(xhr.response);
-            document.getElementById("response").innerHTML = `
+            responseDiv.innerHTML = `
             <div class="alert alert-success" role="alert">
                 <div class="mt-3">
                     <h6>Ваша ссылка</h6>
