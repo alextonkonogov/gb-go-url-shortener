@@ -44,5 +44,7 @@ func (s *Server) Start(ur *repourl.URL, st *repostatistics.Statistics) {
 	s.ur = ur
 	s.st = st
 	// TODO: migrations
-	go s.srv.ListenAndServe()
+	go func() {
+		_ = s.srv.ListenAndServe()
+	}()
 }
