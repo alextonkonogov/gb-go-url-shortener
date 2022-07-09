@@ -63,8 +63,8 @@ func (st *Statistics) Close() {
 	st.db.Close()
 }
 
-func (st *Statistics) Create(ctx context.Context, URLID int64) error {
-	_, err := st.db.ExecContext(ctx, `INSERT INTO statistics (url_id) values ($1)`, URLID)
+func (st *Statistics) Create(ctx context.Context, urlID int64) error {
+	_, err := st.db.ExecContext(ctx, `INSERT INTO statistics (url_id) values ($1)`, urlID)
 	if err != nil {
 		st.log.Error("err when inserting: ", err)
 		return err
@@ -99,11 +99,11 @@ func (st *Statistics) Read(ctx context.Context, s statistics.Statistics) (*stati
 	return &s, nil
 }
 
-func (st *Statistics) Update(ctx context.Context, s statistics.Statistics, URLID int64) (*statistics.Statistics, error) {
+func (st *Statistics) Update(ctx context.Context, s statistics.Statistics, urlID int64) (*statistics.Statistics, error) {
 	dbs := &DBPgStatistics{
 		IP:       s.IP,
 		ViewedAt: s.Viewed,
-		URLID:    URLID,
+		URLID:    urlID,
 	}
 
 	err := st.db.QueryRowContext(ctx, `

@@ -15,8 +15,8 @@ type Statistics struct {
 	Admin  string `json:"admin"`
 }
 
-func (h *Handlers) CreateStatistics(ctx context.Context, urlId int64) error {
-	err := h.st.Create(ctx, urlId)
+func (h *Handlers) CreateStatistics(ctx context.Context, urlID int64) error {
+	err := h.st.Create(ctx, urlID)
 	if err != nil {
 		err = fmt.Errorf("error when creating: %w", err)
 		h.log.Error(err)
@@ -47,13 +47,13 @@ func (h *Handlers) ReadStatistics(ctx context.Context, st Statistics) (Statistic
 	}, nil
 }
 
-func (h *Handlers) UpdateStatistics(ctx context.Context, st Statistics, urlId int64) (Statistics, error) {
+func (h *Handlers) UpdateStatistics(ctx context.Context, st Statistics, urlID int64) (Statistics, error) {
 	bu := statistics.Statistics{
 		Admin: st.Admin,
 		IP:    st.IP,
 	}
 
-	nbu, err := h.st.Update(ctx, bu, urlId)
+	nbu, err := h.st.Update(ctx, bu, urlID)
 	if err != nil {
 		err = fmt.Errorf("error when updating: %w", err)
 		h.log.Error(err)

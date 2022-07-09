@@ -78,7 +78,7 @@ func (rt *RouterOpenAPI) PostSCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	render.Render(w, r, URL(u))
+	_ = render.Render(w, r, URL(u))
 }
 
 func (rt *RouterOpenAPI) GetSShort(w http.ResponseWriter, r *http.Request, short string) {
