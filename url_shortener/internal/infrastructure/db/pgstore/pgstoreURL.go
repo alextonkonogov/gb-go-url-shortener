@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"github.com/alextonkonogov/gb-go-url-shortener/url_shortener/internal/entities/url"
 	"github.com/alextonkonogov/gb-go-url-shortener/url_shortener/internal/usecases/app/repos/repoURL"
+	"github.com/sirupsen/logrus"
 
 	_ "github.com/jackc/pgx/v4/stdlib" // Postgresql driver
 )
@@ -20,17 +21,20 @@ type DBPgURL struct {
 }
 
 type URL struct {
-	db *sql.DB
+	db  *sql.DB
+	log *logrus.Logger
 }
 
-func NewURL(dsn string) (*URL, error) {
+func NewURL(dsn string, log *logrus.Logger) (*URL, error) {
 	db, err := sql.Open("pgx", dsn)
 	if err != nil {
+		log.Error("err when opening connection: ", err)
 		return nil, err
 	}
 	err = db.Ping()
 	if err != nil {
 		db.Close()
+		log.Error("err when pinging: ", err)
 		return nil, err
 	}
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS urls (
@@ -42,10 +46,12 @@ func NewURL(dsn string) (*URL, error) {
 	)`)
 	if err != nil {
 		db.Close()
+		log.Error("err when creating table: ", err)
 		return nil, err
 	}
 	us := &URL{
-		db: db,
+		db:  db,
+		log: log,
 	}
 	return us, nil
 }
@@ -71,19 +77,21 @@ func (ur *URL) Create(ctx context.Context, u url.URL) (*int64, error) {
 		dbu.Admin,
 	).Scan(&dbu.ID)
 	if err != nil {
+		ur.log.Error("err when inserting: ", err)
 		return nil, err
 	}
 
 	return &dbu.ID, nil
 }
 
-func (us *URL) Read(ctx context.Context, u url.URL) (*url.URL, error) {
+func (ur *URL) Read(ctx context.Context, u url.URL) (*url.URL, error) {
 	dbu := &DBPgURL{
 		Short: u.Short,
 	}
 
-	err := us.db.QueryRowContext(ctx, `SELECT id, long FROM urls WHERE short = $1`, dbu.Short).Scan(&dbu.ID, &dbu.Long)
+	err := ur.db.QueryRowContext(ctx, `SELECT id, long FROM urls WHERE short = $1`, dbu.Short).Scan(&dbu.ID, &dbu.Long)
 	if err != nil {
+		ur.log.Error("err when selecting: ", err)
 		return nil, err
 	}
 	u.ID = dbu.ID

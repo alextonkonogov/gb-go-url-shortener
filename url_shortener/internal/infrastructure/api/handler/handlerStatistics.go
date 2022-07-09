@@ -18,7 +18,9 @@ type Statistics struct {
 func (h *Handlers) CreateStatistics(ctx context.Context, URLID int64) error {
 	err := h.st.Create(ctx, URLID)
 	if err != nil {
-		return fmt.Errorf("error when creating: %w", err)
+		err = fmt.Errorf("error when creating: %w", err)
+		h.log.Error(err)
+		return err
 	}
 
 	return nil
@@ -31,7 +33,9 @@ func (h *Handlers) ReadStatistics(ctx context.Context, st Statistics) (Statistic
 
 	nbu, err := h.st.Read(ctx, bu)
 	if err != nil {
-		return Statistics{}, fmt.Errorf("error when reading: %w", err)
+		err = fmt.Errorf("error when reading: %w", err)
+		h.log.Error(err)
+		return Statistics{}, err
 	}
 
 	return Statistics{
@@ -51,7 +55,9 @@ func (h *Handlers) UpdateStatistics(ctx context.Context, st Statistics, URLID in
 
 	nbu, err := h.st.Update(ctx, bu, URLID)
 	if err != nil {
-		return Statistics{}, fmt.Errorf("error when reading: %w", err)
+		err = fmt.Errorf("error when updating: %w", err)
+		h.log.Error(err)
+		return Statistics{}, err
 	}
 
 	return Statistics{

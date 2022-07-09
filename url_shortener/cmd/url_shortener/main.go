@@ -6,10 +6,11 @@ import (
 	"github.com/alextonkonogov/gb-go-url-shortener/url_shortener/internal/infrastructure/api/handler"
 	"github.com/alextonkonogov/gb-go-url-shortener/url_shortener/internal/infrastructure/api/routeropenapi"
 	"github.com/alextonkonogov/gb-go-url-shortener/url_shortener/internal/infrastructure/db/pgstore"
+	"github.com/alextonkonogov/gb-go-url-shortener/url_shortener/internal/infrastructure/log"
 	"github.com/alextonkonogov/gb-go-url-shortener/url_shortener/internal/infrastructure/server"
 	"github.com/alextonkonogov/gb-go-url-shortener/url_shortener/internal/usecases/app/repos/repoStatistics"
 	"github.com/alextonkonogov/gb-go-url-shortener/url_shortener/internal/usecases/app/repos/repoURL"
-	"log"
+
 	"os"
 	"os/signal"
 )
@@ -19,24 +20,28 @@ var appPort = os.Getenv("APP_PORT")
 var pgStr = os.Getenv("DB_CONNECTION_STRING")
 
 func main() {
+	l := log.NewLogWithConfuguration()
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
-	ust, err := pgstore.NewURL(pgStr)
+	ust, err := pgstore.NewURL(pgStr, l)
 	if err != nil {
-		log.Fatal(err)
+		l.WithError(err).Fatal()
 	}
-	sst, err := pgstore.NewStatistics(pgStr)
+	sst, err := pgstore.NewStatistics(pgStr, l)
 	if err != nil {
-		log.Fatal(err)
+		l.WithError(err).Fatal()
 	}
 
-	ur := repoURL.NewURL(ust)
-	st := repoStatistics.NewStatistics(sst)
-	hs := handler.NewHandlers(ur, st)
-	h := routeropenapi.NewRouterOpenAPI(hs)
+	ur := repoURL.NewURL(ust, l)
+	st := repoStatistics.NewStatistics(sst, l)
+	hs := handler.NewHandlers(ur, st, l)
+	h, err := routeropenapi.NewRouterOpenAPI(hs, l)
+	if err != nil {
+		l.WithError(err).Fatal()
+	}
 	srv := server.NewServer(appIP+":"+appPort, h)
 
 	srv.Start(ur, st)
-	log.Print("Started")
+	l.Info("started")
 
 	<-ctx.Done()
 
@@ -44,5 +49,5 @@ func main() {
 	cancel()
 	ust.Close()
 
-	log.Print("Exit")
+	l.Info("exited")
 }

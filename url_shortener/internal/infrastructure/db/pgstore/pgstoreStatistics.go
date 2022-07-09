@@ -3,9 +3,9 @@ package pgstore
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"github.com/alextonkonogov/gb-go-url-shortener/url_shortener/internal/entities/statistics"
 	"github.com/alextonkonogov/gb-go-url-shortener/url_shortener/internal/usecases/app/repos/repoStatistics"
+	"github.com/sirupsen/logrus"
 
 	_ "github.com/jackc/pgx/v4/stdlib" // Postgresql driver
 )
@@ -23,17 +23,20 @@ type DBPgStatistics struct {
 }
 
 type Statistics struct {
-	db *sql.DB
+	db  *sql.DB
+	log *logrus.Logger
 }
 
-func NewStatistics(dsn string) (*Statistics, error) {
+func NewStatistics(dsn string, log *logrus.Logger) (*Statistics, error) {
 	db, err := sql.Open("pgx", dsn)
 	if err != nil {
+		log.Error("err when opening connection: ", err)
 		return nil, err
 	}
 	err = db.Ping()
 	if err != nil {
 		db.Close()
+		log.Error("err when pinging: ", err)
 		return nil, err
 	}
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS statistics (
@@ -46,10 +49,12 @@ func NewStatistics(dsn string) (*Statistics, error) {
 	)`)
 	if err != nil {
 		db.Close()
+		log.Error("err when creating table: ", err)
 		return nil, err
 	}
 	st := &Statistics{
-		db: db,
+		db:  db,
+		log: log,
 	}
 	return st, nil
 }
@@ -61,6 +66,7 @@ func (st *Statistics) Close() {
 func (st *Statistics) Create(ctx context.Context, URLID int64) error {
 	_, err := st.db.ExecContext(ctx, `INSERT INTO statistics (url_id) values ($1)`, URLID)
 	if err != nil {
+		st.log.Error("err when inserting: ", err)
 		return err
 	}
 
@@ -86,7 +92,7 @@ func (st *Statistics) Read(ctx context.Context, s statistics.Statistics) (*stati
 		dbs.Admin,
 	).Scan(&s.IP, &s.Count, &s.Viewed, &s.Short, &s.Long)
 	if err != nil {
-		fmt.Println(err)
+		st.log.Error("err when selecting: ", err)
 		return nil, err
 	}
 
@@ -114,6 +120,7 @@ func (st *Statistics) Update(ctx context.Context, s statistics.Statistics, URLID
 	s.Count = dbs.Count
 
 	if err != nil {
+		st.log.Error("err when updating: ", err)
 		return nil, err
 	}
 

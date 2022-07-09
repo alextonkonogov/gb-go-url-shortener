@@ -1,6 +1,7 @@
 package routeropenapi
 
 import (
+	"fmt"
 	"github.com/alextonkonogov/gb-go-url-shortener/url_shortener/internal/entities/statistics"
 	"github.com/alextonkonogov/gb-go-url-shortener/url_shortener/internal/infrastructure/api/handler"
 	"github.com/go-chi/render"
@@ -24,13 +25,15 @@ func (rt *RouterOpenAPI) Get(w http.ResponseWriter, r *http.Request) {
 	common := filepath.Join("public", "html", "common.html")
 	tmpl, err := template.ParseFiles(index, common)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		rt.log.WithError(fmt.Errorf("from route: %w", err)).Error(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	err = tmpl.ExecuteTemplate(w, "index", nil)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		rt.log.WithError(fmt.Errorf("from route: %w", err)).Error(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 }
@@ -40,13 +43,15 @@ func (rt *RouterOpenAPI) GetErr(w http.ResponseWriter, r *http.Request) {
 	common := filepath.Join("public", "html", "common.html")
 	tmpl, err := template.ParseFiles(page, common)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		rt.log.WithError(fmt.Errorf("from route: %w", err)).Error(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	err = tmpl.ExecuteTemplate(w, "err", nil)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		rt.log.WithError(fmt.Errorf("from route: %w", err)).Error(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 }
@@ -54,19 +59,22 @@ func (rt *RouterOpenAPI) GetErr(w http.ResponseWriter, r *http.Request) {
 func (rt *RouterOpenAPI) PostSCreate(w http.ResponseWriter, r *http.Request) {
 	ru := URL{}
 	if err := render.Bind(r, &ru); err != nil {
+		rt.log.WithError(fmt.Errorf("from route: %w", err)).Error(err)
 		render.Render(w, r, ErrInvalidRequest(err))
 		return
 	}
 
 	u, err := rt.hs.CreateURL(r.Context(), handler.URL(ru))
 	if err != nil {
-		render.Render(w, r, ErrRender(err))
+		rt.log.WithError(fmt.Errorf("from route: %w", err)).Error(err)
+		render.Render(w, r, ErrInternalError(err))
 		return
 	}
 
 	err = rt.hs.CreateStatistics(r.Context(), u.ID)
 	if err != nil {
-		render.Render(w, r, ErrRender(err))
+		rt.log.WithError(fmt.Errorf("from route: %w", err)).Error(err)
+		render.Render(w, r, ErrInternalError(err))
 		return
 	}
 
@@ -79,6 +87,7 @@ func (rt *RouterOpenAPI) GetSShort(w http.ResponseWriter, r *http.Request, short
 
 	nu, err := rt.hs.ReadURL(r.Context(), handler.URL(u))
 	if err != nil {
+		rt.log.WithError(fmt.Errorf("from route: %w", err)).Error(err)
 		http.Redirect(w, r, "/err", http.StatusSeeOther)
 		return
 	}
@@ -87,6 +96,7 @@ func (rt *RouterOpenAPI) GetSShort(w http.ResponseWriter, r *http.Request, short
 	st.IP = r.RemoteAddr
 	_, err = rt.hs.UpdateStatistics(r.Context(), handler.Statistics(st), nu.ID)
 	if err != nil {
+		rt.log.WithError(fmt.Errorf("from route: %w", err)).Error(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

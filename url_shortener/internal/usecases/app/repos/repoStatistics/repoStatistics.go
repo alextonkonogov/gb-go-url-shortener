@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/alextonkonogov/gb-go-url-shortener/url_shortener/internal/entities/statistics"
+	"github.com/sirupsen/logrus"
 	"time"
 )
 
@@ -16,18 +17,22 @@ type StatisticsStore interface {
 
 type Statistics struct {
 	StatisticsStore StatisticsStore
+	log             *logrus.Logger
 }
 
-func NewStatistics(sstore StatisticsStore) *Statistics {
+func NewStatistics(sstore StatisticsStore, log *logrus.Logger) *Statistics {
 	return &Statistics{
 		StatisticsStore: sstore,
+		log:             log,
 	}
 }
 
 func (st *Statistics) Create(ctx context.Context, URLID int64) error {
 	err := st.StatisticsStore.Create(ctx, URLID)
 	if err != nil {
-		return fmt.Errorf("create statistics error: %w", err)
+		err = fmt.Errorf("create statistics error: %w", err)
+		st.log.Error(err)
+		return err
 	}
 	return nil
 }
@@ -35,7 +40,9 @@ func (st *Statistics) Create(ctx context.Context, URLID int64) error {
 func (st *Statistics) Read(ctx context.Context, s statistics.Statistics) (*statistics.Statistics, error) {
 	nst, err := st.StatisticsStore.Read(ctx, s)
 	if err != nil {
-		return nil, fmt.Errorf("read statistics error: %w", err)
+		err = fmt.Errorf("read statistics error: %w", err)
+		st.log.Error(err)
+		return nil, err
 	}
 	s.IP = nst.IP
 	s.Viewed = nst.Viewed
@@ -50,7 +57,9 @@ func (st *Statistics) Update(ctx context.Context, s statistics.Statistics, URLID
 	s.Viewed = time.Now().Format("2006-01-02T15:04:05.000Z")
 	ns, err := st.StatisticsStore.Update(ctx, s, URLID)
 	if err != nil {
-		return nil, fmt.Errorf("update URL error: %w", err)
+		err = fmt.Errorf("update statistics error: %w", err)
+		st.log.Error(err)
+		return nil, err
 	}
 	s.Count = ns.Count
 	return &s, nil

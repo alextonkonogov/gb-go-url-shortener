@@ -21,7 +21,9 @@ func (h *Handlers) CreateURL(ctx context.Context, u URL) (URL, error) {
 
 	nbu, err := h.ur.Create(ctx, bu)
 	if err != nil {
-		return URL{}, fmt.Errorf("error when creating: %w", err)
+		err = fmt.Errorf("error when creating: %w", err)
+		h.log.Error(err)
+		return URL{}, err
 	}
 
 	return URL{
@@ -40,7 +42,9 @@ func (h *Handlers) ReadURL(ctx context.Context, u URL) (URL, error) {
 
 	nbu, err := h.ur.Read(ctx, bu)
 	if err != nil {
-		return URL{}, fmt.Errorf("error when reading: %w", err)
+		err = fmt.Errorf("error when reading: %w", err)
+		h.log.Error(err)
+		return URL{}, err
 	}
 
 	return URL{
