@@ -10,7 +10,7 @@ import (
 
 // нужен только тут
 type StatisticsStore interface {
-	Create(ctx context.Context, urlId int64) error
+	Create(ctx context.Context, urlID int64) error
 	Read(ctx context.Context, s statistics.Statistics) (*statistics.Statistics, error)
 	Update(ctx context.Context, s statistics.Statistics, urlID int64) (*statistics.Statistics, error)
 }
