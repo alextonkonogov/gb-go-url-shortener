@@ -1,4 +1,4 @@
-package repoStatistics
+package repostatistics
 
 import (
 	"context"
@@ -10,9 +10,9 @@ import (
 
 // нужен только тут
 type StatisticsStore interface {
-	Create(ctx context.Context, URLID int64) error
+	Create(ctx context.Context, urlId int64) error
 	Read(ctx context.Context, s statistics.Statistics) (*statistics.Statistics, error)
-	Update(ctx context.Context, s statistics.Statistics, URLID int64) (*statistics.Statistics, error)
+	Update(ctx context.Context, s statistics.Statistics, urlId int64) (*statistics.Statistics, error)
 }
 
 type Statistics struct {
@@ -27,8 +27,8 @@ func NewStatistics(sstore StatisticsStore, log *logrus.Logger) *Statistics {
 	}
 }
 
-func (st *Statistics) Create(ctx context.Context, URLID int64) error {
-	err := st.StatisticsStore.Create(ctx, URLID)
+func (st *Statistics) Create(ctx context.Context, urlId int64) error {
+	err := st.StatisticsStore.Create(ctx, urlId)
 	if err != nil {
 		err = fmt.Errorf("create statistics error: %w", err)
 		st.log.Error(err)
@@ -53,9 +53,9 @@ func (st *Statistics) Read(ctx context.Context, s statistics.Statistics) (*stati
 	return &s, nil
 }
 
-func (st *Statistics) Update(ctx context.Context, s statistics.Statistics, URLID int64) (*statistics.Statistics, error) {
+func (st *Statistics) Update(ctx context.Context, s statistics.Statistics, urlId int64) (*statistics.Statistics, error) {
 	s.Viewed = time.Now().Format("2006-01-02T15:04:05.000Z")
-	ns, err := st.StatisticsStore.Update(ctx, s, URLID)
+	ns, err := st.StatisticsStore.Update(ctx, s, urlId)
 	if err != nil {
 		err = fmt.Errorf("update statistics error: %w", err)
 		st.log.Error(err)

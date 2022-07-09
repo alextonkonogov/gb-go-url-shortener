@@ -1,4 +1,4 @@
-package repoURL
+package repourl
 
 import (
 	"context"

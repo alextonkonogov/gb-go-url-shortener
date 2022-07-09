@@ -4,13 +4,13 @@ import (
 	"context"
 	"database/sql"
 	"github.com/alextonkonogov/gb-go-url-shortener/url_shortener/internal/entities/url"
-	"github.com/alextonkonogov/gb-go-url-shortener/url_shortener/internal/usecases/app/repos/repoURL"
+	"github.com/alextonkonogov/gb-go-url-shortener/url_shortener/internal/usecases/app/repos/repourl"
 	"github.com/sirupsen/logrus"
 
 	_ "github.com/jackc/pgx/v4/stdlib" // Postgresql driver
 )
 
-var _ repoURL.URLStore = &URL{}
+var _ repourl.URLStore = &URL{}
 
 type DBPgURL struct {
 	ID        int64

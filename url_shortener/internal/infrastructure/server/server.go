@@ -2,20 +2,24 @@ package server
 
 import (
 	"context"
-	"github.com/alextonkonogov/gb-go-url-shortener/url_shortener/internal/usecases/app/repos/repoStatistics"
-	"github.com/alextonkonogov/gb-go-url-shortener/url_shortener/internal/usecases/app/repos/repoURL"
+	"github.com/alextonkonogov/gb-go-url-shortener/url_shortener/internal/usecases/app/repos/repostatistics"
+	"github.com/alextonkonogov/gb-go-url-shortener/url_shortener/internal/usecases/app/repos/repourl"
+	"github.com/sirupsen/logrus"
 	"net/http"
 	"time"
 )
 
 type Server struct {
 	srv http.Server
-	ur  *repoURL.URL
-	st  *repoStatistics.Statistics
+	ur  *repourl.URL
+	st  *repostatistics.Statistics
+	log *logrus.Logger
 }
 
-func NewServer(addr string, h http.Handler) *Server {
-	s := &Server{}
+func NewServer(addr string, h http.Handler, log *logrus.Logger) *Server {
+	s := &Server{
+		log: log,
+	}
 
 	s.srv = http.Server{
 		Addr:              addr,
@@ -29,11 +33,14 @@ func NewServer(addr string, h http.Handler) *Server {
 
 func (s *Server) Stop() {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
-	s.srv.Shutdown(ctx)
+	err := s.srv.Shutdown(ctx)
+	if err != nil {
+		s.log.WithError(err).Fatal()
+	}
 	cancel()
 }
 
-func (s *Server) Start(ur *repoURL.URL, st *repoStatistics.Statistics) {
+func (s *Server) Start(ur *repourl.URL, st *repostatistics.Statistics) {
 	s.ur = ur
 	s.st = st
 	// TODO: migrations

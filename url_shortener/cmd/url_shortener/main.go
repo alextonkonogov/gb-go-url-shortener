@@ -8,8 +8,8 @@ import (
 	"github.com/alextonkonogov/gb-go-url-shortener/url_shortener/internal/infrastructure/db/pgstore"
 	"github.com/alextonkonogov/gb-go-url-shortener/url_shortener/internal/infrastructure/log"
 	"github.com/alextonkonogov/gb-go-url-shortener/url_shortener/internal/infrastructure/server"
-	"github.com/alextonkonogov/gb-go-url-shortener/url_shortener/internal/usecases/app/repos/repoStatistics"
-	"github.com/alextonkonogov/gb-go-url-shortener/url_shortener/internal/usecases/app/repos/repoURL"
+	"github.com/alextonkonogov/gb-go-url-shortener/url_shortener/internal/usecases/app/repos/repostatistics"
+	"github.com/alextonkonogov/gb-go-url-shortener/url_shortener/internal/usecases/app/repos/repourl"
 
 	"os"
 	"os/signal"
@@ -31,14 +31,14 @@ func main() {
 		l.WithError(err).Fatal()
 	}
 
-	ur := repoURL.NewURL(ust, l)
-	st := repoStatistics.NewStatistics(sst, l)
+	ur := repourl.NewURL(ust, l)
+	st := repostatistics.NewStatistics(sst, l)
 	hs := handler.NewHandlers(ur, st, l)
 	h, err := routeropenapi.NewRouterOpenAPI(hs, l)
 	if err != nil {
 		l.WithError(err).Fatal()
 	}
-	srv := server.NewServer(appIP+":"+appPort, h)
+	srv := server.NewServer(appIP+":"+appPort, h, l)
 
 	srv.Start(ur, st)
 	l.Info("started")

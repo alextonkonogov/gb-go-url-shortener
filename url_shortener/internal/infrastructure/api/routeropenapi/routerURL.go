@@ -60,21 +60,21 @@ func (rt *RouterOpenAPI) PostSCreate(w http.ResponseWriter, r *http.Request) {
 	ru := URL{}
 	if err := render.Bind(r, &ru); err != nil {
 		rt.log.WithError(fmt.Errorf("from route: %w", err)).Error(err)
-		render.Render(w, r, ErrInvalidRequest(err))
+		_ = render.Render(w, r, ErrInvalidRequest(err))
 		return
 	}
 
 	u, err := rt.hs.CreateURL(r.Context(), handler.URL(ru))
 	if err != nil {
 		rt.log.WithError(fmt.Errorf("from route: %w", err)).Error(err)
-		render.Render(w, r, ErrInternalError(err))
+		_ = render.Render(w, r, ErrInternalError(err))
 		return
 	}
 
 	err = rt.hs.CreateStatistics(r.Context(), u.ID)
 	if err != nil {
 		rt.log.WithError(fmt.Errorf("from route: %w", err)).Error(err)
-		render.Render(w, r, ErrInternalError(err))
+		_ = render.Render(w, r, ErrInternalError(err))
 		return
 	}
 

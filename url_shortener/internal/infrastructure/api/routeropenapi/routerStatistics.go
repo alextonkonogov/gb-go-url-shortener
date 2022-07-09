@@ -41,16 +41,16 @@ func (rt *RouterOpenAPI) PostA(w http.ResponseWriter, r *http.Request) {
 	s := Statistics{}
 	if err := render.Bind(r, &s); err != nil {
 		rt.log.WithError(fmt.Errorf("from route: %w", err)).Error(err)
-		render.Render(w, r, ErrInvalidRequest(err))
+		_ = render.Render(w, r, ErrInvalidRequest(err))
 		return
 	}
 
 	st, err := rt.hs.ReadStatistics(r.Context(), handler.Statistics(s))
 	if err != nil {
 		rt.log.WithError(fmt.Errorf("from route: %w", err)).Error(err)
-		render.Render(w, r, ErrInternalError(err))
+		_ = render.Render(w, r, ErrInternalError(err))
 		return
 	}
 
-	render.Render(w, r, Statistics(st))
+	_ = render.Render(w, r, Statistics(st))
 }

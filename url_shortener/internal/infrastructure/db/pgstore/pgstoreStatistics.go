@@ -4,13 +4,13 @@ import (
 	"context"
 	"database/sql"
 	"github.com/alextonkonogov/gb-go-url-shortener/url_shortener/internal/entities/statistics"
-	"github.com/alextonkonogov/gb-go-url-shortener/url_shortener/internal/usecases/app/repos/repoStatistics"
+	"github.com/alextonkonogov/gb-go-url-shortener/url_shortener/internal/usecases/app/repos/repostatistics"
 	"github.com/sirupsen/logrus"
 
 	_ "github.com/jackc/pgx/v4/stdlib" // Postgresql driver
 )
 
-var _ repoStatistics.StatisticsStore = &Statistics{}
+var _ repostatistics.StatisticsStore = &Statistics{}
 
 type DBPgStatistics struct {
 	URLID    int64
