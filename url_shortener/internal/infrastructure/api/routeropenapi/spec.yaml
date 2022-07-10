@@ -1,0 +1,157 @@
+openapi: "3.0.0"
+
+info:
+ title: Simple service API
+ description: REST API
+ version: "1.0.0"
+
+servers:
+ - url: /
+
+paths:
+  /:
+    get:
+      summary: Index page with form
+      description: Index page with form
+      responses:
+        200:
+          description: OK
+          content:
+            text/html:
+          examples:
+            text/html:
+              <html><body>Your HTML text</body></html>
+        500:
+          description: internal server error
+
+  /err:
+    get:
+      summary: Error page
+      description: Error page
+      responses:
+        200:
+          description: OK
+          content:
+            text/html:
+          examples:
+            text/html:
+              <html><body>Your HTML text</body></html>
+        500:
+          description: internal server error
+
+  /s/create:
+    post:
+      summary: Create URL
+      description: Create URL
+      requestBody:
+        description: json body
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiURL'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiURL'
+        400:
+          description: bad request
+        500:
+          description: internal server error
+
+  /s/{short}:
+    get:
+      summary: Redirect to long original URL
+      description: Redirect to long original URL
+      parameters:
+        - name: short
+          description: short code
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        303:
+          description: OK - redirect
+          content:
+            text/html:
+        400:
+          description: bad request
+        500:
+          description: internal server error
+
+  /a/{admin}:
+    get:
+      summary: Admin page
+      description: Admin page
+      parameters:
+        - name: admin
+          description: short code
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+          content:
+            text/html:
+          examples:
+            text/html:
+              <html><body>Your HTML text</body></html>
+        400:
+          description: bad request
+        500:
+          description: internal server error
+  /a:
+    post:
+      summary: Shows URL statistics
+      description: Shows URL statistics
+      requestBody:
+        description: json body
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiStatistics'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiStatistics'
+        400:
+          description: bad request
+        500:
+          description: internal server error
+
+components:
+  schemas:
+    ApiURL:
+      properties:
+        id:
+          type: integer
+        created:
+          type: string
+        long:
+          type: string
+        short:
+          type: string
+        admin:
+          type: string
+    ApiStatistics:
+      properties:
+        long:
+          type: string
+        short:
+          type: string
+        viewed:
+          type: string
+        ip:
+          type: string
+        count:
+          type: integer

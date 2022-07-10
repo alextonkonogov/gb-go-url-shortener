@@ -1,18 +1,7 @@
-APP=url_shortener
-REMOTEHOST=c8555@h4.netangels.ru
-DIR=:/gbt.alextonkonogov.ru
+APP=main
 
 clear:
 	rm -f ${APP} || true
 
 build: clear
-	env GOOS=linux GOARCH=386 go build -v -o ${APP} cmd/url-shortener/main.go
-
-kill:
-	-ssh -l root ${REMOTEHOST} pkill -9 ${APP}
-
-up-app:
-	scp ${APP} ${REMOTEHOST}${DIR}
-
-up-pub:
-	scp -r public ${REMOTEHOST}${DIR}
+	env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -tags netgo -ldflags '-w -extldflags "-static"' -o ./main ./url_shortener/cmd/url_shortener

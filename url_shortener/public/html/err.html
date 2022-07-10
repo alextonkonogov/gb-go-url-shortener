@@ -1,0 +1,17 @@
+{{define "err"}}
+{{template "type"}}
+<head>
+    {{template "meta"}}
+    {{template "styles"}}
+    <title>url shortener</title>
+</head>
+<body class="d-flex flex-column h-100">
+{{template "navbar"}}
+<div class="container mt-5">
+    <div class="alert alert-secondary mt-3" role="alert">Не удалось найти страницу. Проверьте верность ссылки или обратитесь к администратору.</div>
+</div>
+{{template "footer"}}
+{{template "scripts"}}
+</body>
+</html>
+{{end}}

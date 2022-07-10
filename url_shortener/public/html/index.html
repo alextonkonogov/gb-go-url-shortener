@@ -1,0 +1,25 @@
+{{define "index"}}
+{{template "type"}}
+<head>
+    {{template "meta"}}
+    {{template "styles"}}
+    <title>url shortener</title>
+</head>
+<body class="d-flex flex-column h-100">
+{{template "navbar"}}
+<div class="container mt-5">
+    <form id="createNewURLForm" onsubmit="return false;">
+        <div class="input-group mb-3">
+            <input type="url" class="form-control" id="long" name="long" placeholder="Ввести длинную ссылку"
+                   pattern="https://.*" required>
+            <button class="btn btn-outline-success" onclick="create()">Получить короткую</button>
+        </div>
+    </form>
+    {{template "response"}}
+</div>
+{{template "footer"}}
+{{template "scripts"}}
+<script src="/public/js/main.js"></script>
+</body>
+</html>
+{{end}}
