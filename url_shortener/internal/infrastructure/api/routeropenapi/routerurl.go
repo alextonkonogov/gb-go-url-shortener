@@ -1,6 +1,7 @@
 package routeropenapi
 
 import (
+	"errors"
 	"fmt"
 	"github.com/alextonkonogov/gb-go-url-shortener/url_shortener/internal/entities/statistics"
 	"github.com/alextonkonogov/gb-go-url-shortener/url_shortener/internal/infrastructure/api/handler"
@@ -8,6 +9,7 @@ import (
 	"html/template"
 	"net/http"
 	"path/filepath"
+	"regexp"
 )
 
 type URL handler.URL
@@ -60,6 +62,13 @@ func (rt *RouterOpenAPI) PostSCreate(w http.ResponseWriter, r *http.Request) {
 	ru := URL{}
 	if err := render.Bind(r, &ru); err != nil {
 		rt.log.WithError(fmt.Errorf("from route: %w", err)).Error(err)
+		_ = render.Render(w, r, ErrInvalidRequest(err))
+		return
+	}
+
+	if !regexp.MustCompile(`(?m)https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)`).MatchString(ru.Long) {
+		err := errors.New("invalid URL")
+		rt.log.Error(err)
 		_ = render.Render(w, r, ErrInvalidRequest(err))
 		return
 	}

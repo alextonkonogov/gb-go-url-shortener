@@ -48,7 +48,7 @@ func (rt *RouterOpenAPI) PostA(w http.ResponseWriter, r *http.Request) {
 	st, err := rt.hs.ReadStatistics(r.Context(), handler.Statistics(s))
 	if err != nil {
 		rt.log.WithError(fmt.Errorf("from route: %w", err)).Error(err)
-		_ = render.Render(w, r, ErrInternalError(err))
+		_ = render.Render(w, r, ErrNotFound(err))
 		return
 	}
 
