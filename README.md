@@ -1,6 +1,9 @@
 # Курсовой проект URL Shortener
 
+---
 ## Описание работы сервиса
+
+---
 
 - При заходе на стартовую страницу (эндпоинт `/`) видим форму с одним полем для ввода длинной ссылки и кнопку для ее отправки.
 - Указываем ссылку и нажимаем на кнопку.
@@ -25,8 +28,10 @@
 
 ![image](img_2.png)
 
-Тесты планирую добавить завтра.
 Код в ветке final_v: https://github.com/alextonkonogov/gb-go-url-shortener/tree/final_v
+
+---
+## Примеры запросов к основным эндпоинтам
 
 ---
 #### СОЗДАНИЕ
@@ -125,6 +130,8 @@ curl --location --request POST 'http://localhost:8000/a' \
 ---
 ## Тесты
 
+---
+
 Для запуска интеграционного тестирования запустим docker compose
 
 ```shell
@@ -201,13 +208,13 @@ postgres       | 2022-07-10 22:52:21.766 UTC [1] LOG:  database system is ready 
 url_shortener  | time="2022-07-11 01:52:22" level=info msg=started
 ```
 
-Затем провалимся в паку с тестом
+Затем провалимся в папку с тестами
 
 ```shell
 cd url_shortener/cmd/url_shortener
 ```
 
-И после запустим тест через `go test -run "^Test$"`
+И после запускаем объединенный тест через команду `go test -run "^Test$"`
 
 ```shell
 a.tonkonogov@admins-MacBook-Pro url_shortener % go test -run "^Test$"          
